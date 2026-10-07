@@ -46,5 +46,17 @@
     "status": "เตรียมข้อมูล / ในแผน",
     "chapterCount": 0,
     "chaptersPath": "novels/dual-cultivation/chapters.json"
+  },
+  {
+    "id": "cannon-fodder-phoenix",
+    "title": "เมื่อตัวประกอบปั้นน้องสาวให้เป็นหงส์เหินเก้าชั้นฟ้า",
+    "originalTitle": "The Cannon Fodder Turns His Sister Into A Soaring Phoenix",
+    "cover": "covers/phoenix_sister_cover.jpg",
+    "tags": ["ทะลุมิติ", "สายใยพี่น้อง", "ระบบ", "ปั้นน้องสาวให้เทพ"],
+    "synopsis": "เจียงเฉิน ทะลุมิติเข้ามาเป็นเพียงตัวประกอบที่ถูกกำหนดให้ตายอย่างอนาถในชะตากรรมของนิยาย แต่เมื่อเห็นน้องสาวผู้แสนน่ารักไร้เดียงสาต้องตกระกำลำบาก เขาจึงสาบานว่าจะไม่ยอมให้ใครมารังแกนางได้อีก! ด้วยระบบสนับสนุน เขาพร้อมทุ่มเททุกสิ่งเพื่อผลักดันให้น้องสาวก้าวขึ้นเป็นหงส์เพลิงผู้ยิ่งใหญ่เหนือเก้าชั้นฟ้า!",
+    "author": "Kilkonia",
+    "status": "เตรียมข้อมูล / ในแผน",
+    "chapterCount": 0,
+    "chaptersPath": "novels/cannon-fodder-phoenix/chapters.json"
   }
 ]
