@@ -20,7 +20,7 @@
       --nav-bg: rgba(255, 255, 255, 0.95);
       --font-size: 19px;
       --line-height: 1.85;
-      --content-max-width: 760px;
+      --content-max-width: 800px;
     }
 
     [data-theme="sepia"] {
@@ -75,7 +75,6 @@
       flex-direction: column;
     }
 
-    /* Top Floating Navigation */
     header {
       position: sticky;
       top: 0;
@@ -96,6 +95,7 @@
       align-items: center;
       gap: 10px;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .book-title {
@@ -118,14 +118,14 @@
       background: transparent;
       border: 1px solid var(--border-color);
       color: var(--text-color);
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       font-size: 0.85rem;
       font-family: inherit;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
     }
 
@@ -133,7 +133,195 @@
       background: var(--border-color);
     }
 
-    /* Modal / Bottom Sheet for Settings & Chapters */
+    /* Bookshelf View */
+    #shelfView {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      width: 100%;
+    }
+
+    .shelf-header {
+      margin-bottom: 24px;
+    }
+
+    .shelf-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .shelf-desc {
+      font-size: 0.95rem;
+      color: var(--subtext-color);
+    }
+
+    .novel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .novel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .novel-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border-color: var(--accent-color);
+    }
+
+    .novel-card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-color);
+      line-height: 1.4;
+    }
+
+    .novel-card-orig {
+      font-size: 0.85rem;
+      color: var(--subtext-color);
+      font-style: italic;
+    }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-chip {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: var(--subtext-color);
+    }
+
+    .novel-card-synopsis {
+      font-size: 0.88rem;
+      color: var(--subtext-color);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .novel-card-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 0.85rem;
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    /* Reader View */
+    #readerView {
+      display: none;
+      flex: 1;
+      width: 100%;
+      max-width: var(--content-max-width);
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    .reader-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .reader-chapter-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text-color);
+      margin-bottom: 6px;
+    }
+
+    .reader-meta {
+      font-size: 0.85rem;
+      color: var(--subtext-color);
+    }
+
+    .novel-body p {
+      margin-bottom: 1.25em;
+      text-align: justify;
+      text-justify: inter-cluster;
+      letter-spacing: -0.01em;
+    }
+
+    .novel-body p em {
+      font-style: italic;
+      color: var(--subtext-color);
+    }
+
+    .novel-body p strong {
+      font-weight: 700;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 2em 0;
+      color: var(--subtext-color);
+      letter-spacing: 0.4em;
+    }
+
+    .chapter-nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      gap: 12px;
+    }
+
+    .nav-btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--accent-color);
+      color: #ffffff;
+      border-color: var(--accent-color);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Modal / Drawer */
     .drawer-overlay {
       position: fixed;
       inset: 0;
@@ -257,7 +445,6 @@
       cursor: pointer;
     }
 
-    /* Chapter List in Drawer */
     .chapter-list {
       list-style: none;
       display: flex;
@@ -285,107 +472,21 @@
       background: var(--accent-color);
       color: #ffffff;
     }
-
-    /* Main Reader Container */
-    main {
-      flex: 1;
-      width: 100%;
-      max-width: var(--content-max-width);
-      margin: 0 auto;
-      padding: 24px 20px 60px;
-    }
-
-    .reader-header {
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px dashed var(--border-color);
-    }
-
-    .reader-chapter-title {
-      font-size: 1.45rem;
-      font-weight: 700;
-      line-height: 1.4;
-      color: var(--text-color);
-      margin-bottom: 6px;
-    }
-
-    .reader-meta {
-      font-size: 0.85rem;
-      color: var(--subtext-color);
-    }
-
-    /* Novel Text Body */
-    .novel-body p {
-      margin-bottom: 1.25em;
-      text-align: justify;
-      text-justify: inter-cluster;
-      letter-spacing: -0.01em;
-    }
-
-    .novel-body p em {
-      font-style: italic;
-      color: var(--subtext-color);
-    }
-
-    .novel-body p strong {
-      font-weight: 700;
-    }
-
-    .divider {
-      text-align: center;
-      margin: 2em 0;
-      color: var(--subtext-color);
-      letter-spacing: 0.4em;
-    }
-
-    /* Chapter Navigation Bottom */
-    .chapter-nav-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-color);
-      gap: 12px;
-    }
-
-    .nav-btn {
-      padding: 10px 18px;
-      border-radius: 10px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      background: var(--accent-color);
-      color: #ffffff;
-      border-color: var(--accent-color);
-    }
-
-    .nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Top Bar -->
+  <!-- Top Navigation Header -->
   <header>
-    <div class="header-left">
-      <span class="book-title" id="topBookTitle">หุบปากไปเลยนะยัยมังกรชั่ว!</span>
+    <div class="header-left" onclick="showShelf()">
+      <span class="btn-icon" style="padding: 4px 8px; border: none; font-size: 1rem;">📚</span>
+      <span class="book-title" id="topBookTitle">Pika's Bookshelf</span>
     </div>
     <div class="header-actions">
-      <button class="btn-icon" onclick="openDrawer('chapterDrawer')">
+      <button class="btn-icon" id="btnShelf" onclick="showShelf()" style="display: none;">
+        🏠 ชั้นหนังสือ
+      </button>
+      <button class="btn-icon" id="btnChapters" onclick="openDrawer('chapterDrawer')" style="display: none;">
         📖 สารบัญ
       </button>
       <button class="btn-icon" onclick="openDrawer('settingDrawer')">
@@ -394,24 +495,34 @@
     </div>
   </header>
 
-  <!-- Reader Body -->
-  <main>
+  <!-- Bookshelf Screen -->
+  <section id="shelfView">
+    <div class="shelf-header">
+      <h1 class="shelf-title">📚 ชั้นหนังสือนิยาย</h1>
+      <p class="shelf-desc">เลือกเรื่องที่ต้องการอ่าน แปลไทยสำนวนสละสลวย</p>
+    </div>
+    <div class="novel-grid" id="novelGrid">
+      <!-- Injected via JS -->
+    </div>
+  </section>
+
+  <!-- Novel Reader Screen -->
+  <main id="readerView">
     <div class="reader-header">
       <h1 class="reader-chapter-title" id="chapterTitle">กำลังโหลด...</h1>
-      <div class="reader-meta" id="chapterMeta">Vol 1 Chapter 1</div>
+      <div class="reader-meta" id="chapterMeta">Vol 1</div>
     </div>
 
     <article class="novel-body" id="novelContent">
-      <!-- Chapter content injected here -->
+      <!-- Chapter text injected here -->
     </article>
 
-    <!-- Bottom Navigation -->
     <div class="chapter-nav-bottom">
       <button class="nav-btn" id="prevBtn" onclick="prevChapter()" disabled>
         ← ตอนก่อนหน้า
       </button>
       <button class="nav-btn" onclick="openDrawer('chapterDrawer')">
-        รายการตอน
+        สารบัญตอน
       </button>
       <button class="nav-btn" id="nextBtn" onclick="nextChapter()" disabled>
         ตอนถัดไป →
@@ -430,7 +541,7 @@
     </div>
 
     <div class="setting-group">
-      <div class="setting-label">โทนสีพื้นหลัง</div>
+      <div class="setting-label">ธีมสีพื้นหลัง</div>
       <div class="theme-grid">
         <button class="theme-btn active" onclick="setTheme('light')">ขาว</button>
         <button class="theme-btn" onclick="setTheme('sepia')">ถนอมสายตา</button>
@@ -448,175 +559,129 @@
     </div>
   </div>
 
-  <!-- Chapter Index Drawer -->
+  <!-- Chapters Drawer -->
   <div class="drawer" id="chapterDrawer">
     <div class="drawer-title">
       <span>สารบัญตอน</span>
       <button class="close-btn" onclick="closeAllDrawers()">&times;</button>
     </div>
     <ul class="chapter-list" id="chapterList">
-      <!-- Chapters list injected here -->
+      <!-- Injected via JS -->
     </ul>
   </div>
 
   <script>
-    // Chapter Database (จะอัปเดตเพิ่มตอนใหม่ๆ ตรงนี้ได้อย่างง่ายดาย)
-    const chaptersData = [
-      {
-        id: "ch001",
-        vol: 1,
-        chNum: 1,
-        title: "ตอนที่ 1: พ่ายแพ้จนถูกจับ ย่อมต้องมีใครสักคนที่ตั้งท้อง",
-        paragraphs: [
-          "ภายในคุกใต้ดินอันมืดสลัวและชื้นแฉะ",
-          "ลีออนถูกพันธนาการไว้แน่นหนาด้วยโซ่ผนึกมนตราจนไม่อาจขยับเขยื้อนได้แม้แต่ปลายนิ้ว เกราะอันชำรุดทรุดโทรมแขวนร่องแร่งอยู่บนร่าง รอยแดงสดที่ข้อมือบ่บอกถึงการดิ้นรนอย่างเอาเป็นเอาตาย",
-          "ทว่าความพยายามทั้งหมดกลับไร้ผล",
-          "เมื่อสามวันก่อน เขานำทัพ ‘กองทัพล่ามังกร’ ของจักรวรรดิมุ่งหน้าสู่วิหารมังกรเงิน ด้วยความมุ่งมั่นที่จะกำจัดมังกรชั่วร้ายที่สร้างความเดือดร้อนให้สิ้นซาก",
-          "ทว่าลีออนกลับตกเป็นเหยื่อของการหักหลัง ไม่เพียงแต่จะถูกแทงข้างหลัง เขายังทำให้ที่ตั้งของกองทัพถูกเปิดเผยต่อหน้าเผ่ามังกรเงินอีกด้วย",
-          "เมื่อขาดการนำของลีออน กองทัพล่ามังกรจึงแตกพ่ายระส่ำระสายอย่างรวดเร็วและถอยร่นกระจัดกระจายไป ขณะเดียวกัน ลีออนก็ถูกเผ่ามังกรเงินจับกุมตัวได้ทั้งเป็น และถูกคุมขังไว้ในคุกใต้ดินแห่งนี้",
-          "ตลอดสามวันที่ผ่านมา ลีออนไม่ได้ดื่มน้ำแม้แต่หยดเดียว ในใจคิดเพียงปรารถนาความตาย",
-          "แทนที่จะต้องทนทุกข์ทรมานและรับความอัปยศจากพวกมังกรชั่วร้ายเหล่านี้ เขาขอตายไปให้พ้นๆ ยังจะดีเสียกว่า ทว่าเมื่อถูกพันธนาการด้วยโซ่ผนึกมนตรา แม้แต่การจะปลิดชีพตัวเองก็ยังทำไม่ได้เลย",
-          "ท่ามกลางสติอันเลือนราง เขาแว่วได้ยินเสียงเอะอะครึกครื้นดังมาจากไม่ไกล",
-          "นั่นคืองานเลี้ยงฉลองของเผ่ามังกร ลีออนได้ยินเรื่องนี้มาจากผู้คุม เป็นงานฉลองยาวนานหนึ่งสัปดาห์ที่จัดขึ้นเพื่อเฉลิมฉลองการล้ม 'ลีออน แคสโมด' นักล่ามังกรที่แข็งแกร่งที่สุดในจักรวรรดิลงได้",
-          "<em>ช่างเป็นเผ่าพันธุ์ที่สุรุ่ยสุร่ายสิ้นเปลืองอะไรขนาดนี้</em> ลีออนคิดในใจ",
-          "แต่เวลานี้เขาไม่มีทั้งอารมณ์หรือเรี่ยวแรงจะไปวิพากษ์วิจารณ์ใครแล้ว",
-          "<strong>แปะ... แปะ...</strong>",
-          "หยดน้ำรั่วซึมลงมาในคุกใต้ดิน ตกกระทบลงบนโซ่ตรวนทีละหยด เสียงหยดน้ำอันซ้ำซากจำเจราวกับกำลังนับถอยหลังช่วงเวลาที่เหลืออยู่ในชีวิตของเขา",
-          "เวลาผ่านไปนานเท่าใดไม่อาจทราบ ประตูคุกใต้ดินก็เปิดออก",
-          "\"พวกเจ้าออกไปให้หมด ข้าต้องการคุยเป็นการส่วนตัวกับวีรบุรุษผู้ยิ่งใหญ่... นักล่ามังกรของเราเสียหน่อย\"",
-          "\"พ่ะย่ะค่ะ ฝ่าบาท\"",
-          "เสียงประตูปิดลงดังเอี๊ยดอ๊าด ประตูห้องขังปิดสนิท",
-          "ตามมาด้วยเสียงรองเท้าส้นสูงกระทบกับพื้นหินเบาๆ เสียงนั้นดังก้องสะท้อนในคุกใต้ดินอันกว้างขวาง ค่อยๆ ใกล้ลีออนเข้ามาเรื่อยๆ",
-          "จู่ๆ เสียงฝีเท้าก็หยุดชะงักลงตรงหน้าห้องขังของเขา",
-          "ลีออนพยายามฝืนยกศีรษะขึ้น ภาพเบื้องหน้าชวนให้ตื่นตะลึง เส้นผมสีเงินประกายเจิดจ้าดั่งทางช้างเผือกทอดตัวลงมาจากฟากฟ้า ทว่าหางที่โผล่พ้นชายกระโปรงกลับทำให้ลีออนต้องตื่นตัวระวังภัย",
-          "<em>ผมสีเงิน หางมังกร ฝ่าบาทงั้นรึ...</em>",
-          "ลีออนพลันตระหนักถึงตัวตนของอีกฝ่าย— ราชินีแห่งมังกรเงิน 'รอสวิธา'",
-          "รอสวิธาเปิดประตูห้องขัง ย่างกรายเข้ามาด้านใน และหยุดยืนอยู่ตรงหน้าลีออนอย่างเอื่อยเฉื่อย บนตัวนางมีกลิ่นสุราจางๆ ใบหน้าอันหมดจดขึ้นสีระเรื่อเล็กน้อย เห็นได้ชัดว่านางคงสนุกสนานในงานเลี้ยงฉลองมากเกินไปจนเผลอดื่มหนัก",
-          "ทั้งสองอยู่ใกล้กันจนสัมผัสได้ถึงลมหายใจ",
-          "ทว่าช่างน่าเวทนา...",
-          "ฝ่ายหนึ่งตกอยู่ในสภาพน่าสังเวช เสื้อผ้าขาดรุ่ย แม้แต่ชุดเกราะที่ครั้งหนึ่งเคยสง่างาม บัดนี้ก็ทอแสงริบหรี่และเดียวดาย",
-          "ขณะที่อีกฝ่ายกลับสวมใส่อาภรณ์หรูหรา สวมชุดราตรีประณีตงดงาม เรือนผมสีเงินไร้ที่ติ นัยน์ตาคมกริบฉายแววเหยียดหยามและขบขัน",
-          "แสงย้อนส่องผ่านหน้าต่างบานเดี่ยวของคุกใต้ดิน ทอดเงาลงบนแผ่นหลังของลีออนและส่องสว่างกระทบใบหน้าของราชินีมังกร",
-          "แทนที่จะดูเหมือนนักล่ามังกรผู้พ่ายแพ้กับราชินีมังกรผู้เย่อหยิ่ง ภาพฉากนี้กลับดูคล้ายผู้ศรัทธาที่ตกต่ำกำลังอ้อนวอนขอความเมตตาจากนักบุญเสียมากกว่า",
-          "<strong>สวบสาบ—</strong>",
-          "หางมังกรสีเงินใต้กระโปรงขยับช้าๆ ก่อนที่รอสวิธาจะใช้ปลายหางเชยคางของลีออนขึ้นอย่างนุ่มนวล",
-          "\"เจ้าเป็นบุรุษที่ทรหดและหล่อเหลาไม่เบานี่ รอยแผลเป็นพวกนี้ช่างเข้ากับใบหน้าของเจ้ายิ่งนัก\" ราชินีมังกรเอ่ยชม",
-          "นางไม่ค่อยเอ่ยปากชมใครง่ายๆ เว้นเสียแต่ว่ารูปลักษณ์ของคนผู้นั้นจะโดดเด่นสะดุดตาจริงๆ",
-          "แต่ลีออนกลับไม่ใส่ใจ เขาสะบัดหน้าหนีหางของนาง",
-          "รอสวิธาขมวดคิ้วฉับ หางมังกรยืดออกในทันทีแล้วรัดรอบคอของลีออนแน่น",
-          "\"กล้าดีอย่างไรมาเสียมารยาทกับข้า\" นางเอ่ยเสียงเย็นเยียบ",
-          "น้ำเสียงของนางเยือกเย็นทว่าเปี่ยมด้วยอำนาจบารมีแห่งราชินี ในขณะเดียวกัน หางมังกรที่รัดรอบคอของลีออนก็ยิ่งบีบแน่นขึ้นเรื่อยๆ ใบหน้าของลีออนเริ่มแดงก่ำจากการขาดอากาศหายใจบวกกับร่างกายที่อ่อนแอโรยแรง ความตายคืบคลานเข้ามาใกล้เพียงชั่วพริบตา",
-          "ถึงกระนั้น เขาก็ยังคงจ้องมองรอสวิธาอย่างท้าทาย ไร้ซึ่งวี่แววของการยอมจำนน",
-          "ทั้งสองคุมเชิงกันอยู่ครู่หนึ่ง และในจังหวะที่ลีออนกำลังจะหมดสติ รอสวิธาก็ดึงหางกลับไป",
-          "\"เจ้ามันหัวแข็งดีแท้ แต่ช่างเถอะ อย่างไรเสียอีกเดี๋ยวเจ้าก็ต้องตายอยู่ดี\" นางกล่าว",
-          "\"จะฆ่าหรือจะแล่เนื้อเถือหนัง ก็ทำตามใจเจ้าเถอะ ขอแค่อย่าชักช้าก็พอ\" ลีออนตอกกลับ",
-          "\"<strong>เหอะ</strong> คำสั่งเสียซ้ำซากพวกนี้คือทั้งหมดที่นักล่ามังกรผู้ยิ่งใหญ่เค้นออกมาได้ก่อนตายงั้นรึ?\"",
-          "ราชินีมังกรเงินเหยียดยิ้มเยาะพลางเอ่ยต่ออย่างดูแคลน",
-          "\"ว่าแต่นะ ท่านนักล่ามังกรผู้ยิ่งใหญ่ เจ้ามีภรรยาหรือยัง? มีลูกหรือเปล่า? ถ้าไม่มี การตายอยู่ที่นี่ก็เท่ากับเป็นการสิ้นสุดสายเลือดตระกูลของเจ้าเลยไม่ใช่รึ?\"",
-          "นางจงใจใช้วาจาทิ่มแทงอดีตวีรบุรุษผู้เป็นที่สรรเสริญของเผ่าพันธุ์มนุษย์ นี่คือคำเย้ยหยันของผู้ชนะที่มีต่อผู้แพ้ และนางมีสิทธิ์ทำเช่นนั้น",
-          "\"การล่มสลายของนักล่ามังกรคนหนึ่ง มักจะเป็นสัญญาณเปิดทางให้วีรบุรุษรุ่นใหม่ถือกำเนิดขึ้นมาแทน\"",
-          "\"แต่ในกรณีของเจ้า ดูเหมือนจะไม่มีใครสืบทอดเจตนารมณ์ต่อแล้วสินะ หืม?\"",
-          "รอสวิธายื่นมือออกไป ปลายนิ้วเรียวงามลูบไล้ไปตามบาดแผลบนใบหน้าของลีออนอย่างแผ่วเบา น้ำเสียงของนางแฝงความเวทนาอันเสแสร้ง",
-          "\"ช่างน่าเสียดายจริงๆ หากไม่ถูกคนสารเลวหักหลังเสียก่อน มนุษย์ที่เก่งกาจเช่นเจ้าคงสร้างปาฏิหาริย์และเกียรติยศได้มากกว่านี้ เจ้าไม่คิดเช่นนั้นหรือ?\"",
-          "\"ทายาทของเจ้าก็คงจะได้เสวยสุขในทรัพย์สินและความมั่งคั่ง และสักวันหนึ่ง เผ่าพันธุ์มังกรก็คงจะถูกพวกเจ้ากวาดล้างจนหมดสิ้น\"",
-          "\"เจ้าจะได้กลายเป็นวีรบุรุษที่ผู้คนกราบไหว้ไปชั่วลูกชั่วหลาน ได้รับการยกย่องสรรเสริญจากผู้คนนับไม่ถ้วน\"",
-          "\"แต่น่าเสียดายเหลือเกิน—\"",
-          "\"หึ เพราะเจ้ากำลังจะตายลงที่นี่แล้วน่ะสิ~\"",
-          "<strong>แคว่ก—</strong>",
-          "ปลายนิ้วของรอสวิธาจิกลงกะทันหัน ฝากรอยแผลตื้นๆ เพิ่มขึ้นอีกรอยบนใบหน้าของลีออน",
-          "ปลายนิ้วของนางเปรอะรอยเลือด ทว่าแทนที่จะรีบเช็ดออก นางกลับยกนิ้วขึ้นแตะริมฝีปากอย่างสบายอารมณ์ แล้วใช้ลิ้นเลียชิมหยดเลือดของลีออนเบาๆ",
-          "ลีออนค่อยๆ เงยหน้าขึ้น มองรอยยิ้มอย่างผู้มีชัยของรอสวิธา ก่อนจะเหลือบมองคราบเลือดที่มุมปากของนาง",
-          "พลันนั้น ความคิดแก้แค้นอันบ้าคลั่งก็ผุดวาบขึ้นมาในหัว",
-          "ลีออนนึกถึงเวทมนตร์บทหนึ่งที่เขาเคยร่ำเรียนมานานแสนนาน",
-          "<em>เวทมนตร์ประเภทที่ใช้ได้เพียงครั้งเดียวในชีวิต... 'มนตร์เสน่ห์โลหิต' และไม่มีช่วงเวลาใดที่มันจะแสดงผลได้เหมาะเจาะไปกว่าตอนนี้อีกแล้ว</em>",
-          "\"ฝ่าบาท...\" ลีออนเอ่ยด้วยน้ำเสียงแหบพร่า",
-          "\"โอ้? พร้อมจะร้องขอความเมตตาแล้วรึ? ข้าไม่ปล่อยเจ้าไปง่ายๆ หรอกนะ ท่านนักล่ามังกรผู้กล้าหาญ\" นางกล่าว",
-          "\"ฝ่าบาท เมื่อครู่ท่านถามข้าเรื่องทายาทใช่ไหม?\" ลีออนถาม",
-          "รอสวิธาเลิกคิ้วขึ้นอย่างเย้ายวนพลางถาม \"อะไรกัน อย่าบอกนะว่าเจ้ามีจริงๆ น่ะ?\"",
-          "\"เมื่อก่อนไม่มีหรอก... แต่ในไม่ช้านี้ จะมีแน่นอน!\" เขาตอบ",
-          "\"อะ... อะไร เจ้าหมายความว่า—\"",
-          "ยังไม่ทันที่นางจะพูดจบ ลีออนก็เงยหน้าขึ้นสบตากับรอสวิธาอย่างกะทันหัน",
-          "ในวินาทีนั้น นางรู้สึกได้ว่าเรี่ยวแรงทั่วร่างพลันเหือดหาย สติสัมปชัญญะเริ่มพร่าเลือน",
-          "ในแววตาของนักล่ามังกร ราวกับมีระลอกคลื่นมนตราเข้าควบคุมสมองของนาง",
-          "ร่างกายขยับไปข้างหน้าอย่างไม่อาจควบคุมได้ นางเดินตรงเข้าหาลีออน ยกแขนขึ้นโอบกอดเขาไว้แนบแน่น",
-          "แต่นี่เป็นเพียงแค่บทโหมโรงเท่านั้น นางประคองใบหน้าของลีออนขึ้นแล้วประกบริมฝีปากจูบลงไปโดยตรง",
-          "แม้ลีออนจะรังเกียจเผ่าพันธุ์มังกรเข้าไส้ แต่เพื่อแก้แค้นราชินีมังกรเงินผู้นี้ก่อนที่ตนจะตาย เขาจึงยอมทนรับมัน",
-          "รสจูบดำเนินต่อเนื่องไปหลายวินาที ใบหน้าที่เดิมทีก็กรึ่มเหล้าอยู่แล้วของราชินีมังกรยิ่งแดงซ่าน ลมหายใจของนางเริ่มถี่กระชั้น",
-          "ลีออนรู้ดีว่าถึงเวลาแล้ว...",
-          "<div class=\"divider\">• • •</div>",
-          "หนึ่งชั่วโมงต่อมา รอสวิธาค่อยๆ ลืมตาขึ้น",
-          "เมื่อสติเริ่มฟื้นคืน ความรู้สึกแรกที่สัมผัสได้คือความเหนื่อยล้าจนแทบหมดเรี่ยวแรง",
-          "นางก้มลงมองสภาพตัวเอง เสื้อผ้าหลุดลุ่ยไม่เป็นระเบียบ หน้าอกเผยให้เห็นวับๆ แวมๆ และมีรอยเลือดจางๆ บนผิวขาวเนียนละเอียด",
-          "\"ตื่นแล้วรึ ฝ่าบาท หรือตอนนี้ข้าควรจะเรียกว่า 'ท่านแม่ราชินี' ดีล่ะ?\"",
-          "เสียงของลีออนดังขึ้นพร้อมรอยยิ้มจากที่ไม่ไกล",
-          "รอสวิธามองไปยังต้นเสียง นางเห็นว่าโซ่ผนึกมนตราที่พันธนาการมือและเท้าของลีออนถูกปลดออกแล้ว ทว่าเขากลับไม่ได้พยายามจะหลบหนีไปไหน",
-          "บางทีเขาอาจรู้ดีว่าร่างกายที่ใกล้ตายเช่นนี้ ต่อให้หนีไปก็คงไร้ประโยชน์ จึงเลือกที่จะนั่งรอให้รอสวิธาตื่นขึ้นมาตรงนี้",
-          "รอสวิธากัดริมฝีปาก รีบลุกขึ้นจัดแจงเสื้อผ้าให้เข้าที่ ก่อนจะปรี่เข้าไปกระชากคอเสื้อของเขา พลางตวาดถามด้วยความเดือดดาล",
-          "\"เจ้าคิดจะทำให้ข้าท้องงั้นรึ?! เจ้าใช้วิธีอะไรกันแน่?!\"",
-          "\"ฝ่าบาท ตั้งแต่เมื่อครู่นี้ ท่านทำพลาดไปสองอย่างแล้วนะ\"",
-          "ลีออนตอบโดยไม่ตอบคำถามตรงๆ แต่น้ำเสียงกลับราบเรียบเยือกเย็น เขาพูดต่อด้วยท่าทีสุขุม",
-          "\"ข้อแรก ในฐานะมังกร ท่านไม่ควรอยู่ตามลำพังกับนักล่ามังกรที่ผ่านการฝึกฝนมาอย่างเข้มงวด\"",
-          "\"ข้อสอง ข้าไม่รู้หรอกนะว่าท่านมีรสนิยมแบบไหน และข้าก็ไม่ได้สนใจด้วย แต่ท่านไม่ควรอย่างยิ่ง... ไม่ว่าจะในสถานการณ์ใดก็ตาม ที่จะเผลอไปลิ้มรสเลือดของข้าแม้แต่หยดเดียว\"",
-          "แววตาของรอสวิธาฉายแววตื่นตระหนก นัยน์ตาสัตว์เลื้อยคลานแนวตั้งคู่นั้นเผยความสับสนอย่างหาได้ยาก",
-          "<em>ไอ้มนุษย์บัดซบนี่ทำอะไรกับนางกันแน่ ในระหว่างที่นางตกอยู่ในภวังค์สะกดเมื่อครู่?!</em>",
-          "\"มนตร์สะกดเสน่ห์ที่ใช้ได้เพียงครั้งเดียวในชีวิต... 'มนตร์เสน่ห์โลหิต' ข้าสงสัยเหลือเกินว่าองค์ราชินีเคยได้ยินชื่อมันบ้างหรือไม่\"",
-          "\"หลักการของมันเรียบง่ายมาก เมื่ออีกฝ่ายกลืนเลือดเข้าไปแม้แต่หยดเดียว ระลอกคลื่นเวทมนตร์จะละลายเจตจำนงของคนผู้นั้น ทำให้ยอมร่วมหลับนอนด้วยความเต็มใจ\"",
-          "\"ตอนแรกข้าก็รังเกียจที่จะใช้วิธีการสกปรกพรรค์นี้กับท่านอยู่หรอกนะ\"",
-          "\"แต่ข้าต้องยอมรับจริงๆ ว่าฝีปากของท่านร้ายกาจไม่เบา ท่านมาปั่นประสาทข้าก่อน ข้าก็เลยต้องเอาคืนด้วยวิธีนี้ไงล่ะ... องค์ราชินีที่รักของข้า\"",
-          "ในแง่หนึ่ง แผนการของลีออนประสบความสำเร็จ เขาสามารถสร้างความรังเกียจและขยะแขยงให้แก่รอสวิธาก่อนที่ตนจะตายได้จริงๆ ทว่าตัวเขาเองก็ไม่ได้รู้สึกยินดีปรีดานัก",
-          "ในฐานะนักล่ามังกร เขากลับต้องมาพัวพันแนบชิดกับมังกรตัวเมีย...",
-          "เรื่องนี้ สำหรับเขาย่อมถือเป็นตราบาปและความอัปยศอย่างไม่ต้องสงสัย",
-          "แต่เพื่อให้รอสวิธาได้ลิ้มรสความอัปยศนี้อย่างสาสม ลีออนจึงฝืนใจพูดต่อไป",
-          "\"เอาล่ะ ตอนนี้ข้าตอบคำถามก่อนหน้านี้ของท่านได้แล้ว ใช่ ข้ามีลูกแล้ว และตอนนี้พวกเขาก็อยู่ในท้องของท่านนั่นแหละ\"",
-          "เมื่อเห็นสีหน้ากระหยิ่มยิ้มย่องอย่างผู้มีชัยของลีออนหลังจากการแก้แค้นสำเร็จ รอสวิธาทั้งกระวนกระวายทั้งเดือดดาลจนแทบอกแตกตาย",
-          "ราชินีมังกรเงินผู้สง่างามเช่นนาง กลับถูกบุรุษใกล้ตายผู้นี้ปั่นหัวเล่นเนี่ยนะ?!",
-          "ชั่วขณะนั้น รอสวิธาไม่รู้เลยว่าจะรับมือกับสถานการณ์นี้อย่างไรดี สิ่งที่นางพูดหรือทำในตอนนี้ดูช่างอ่อนแอและไร้พลังสิ้นดี ราวกับเมื่อครู่นี้นางยืนอยู่บนจุดที่เหนือกว่าเพื่อเยาะเย้ยลีออน แต่บัดนี้กลับเป็นตาของลีออนที่ลงดาบแทงทะลุขั้วหัวใจของนางบ้าง",
-          "\"ฝ่าบาท ข้าเชื่อว่าตอนนี้ท่านคงรู้สึกถึงความเปลี่ยนแปลงในร่างกายได้ชัดเจนแล้ว และในขณะเดียวกัน ท่านก็คงเข้าใจดีว่า ข้าได้กลายเป็นเป้าหมายเพียงหนึ่งเดียวสำหรับการสืบพันธุ์ในอนาคตของท่านไปแล้ว นี่คือกฎการสืบพันธุ์ของเผ่าพันธุ์มังกรไม่ใช่รึ?\"",
-          "ลีออนกล่าวอย่างฉะฉาน เมื่อไม่กี่วันก่อน กองทัพนักล่ามังกรของเขายังแตกพ่ายไม่เป็นท่า ทว่าบัดนี้เขากลับพูดจาได้ราวกับผู้ชนะสงคราม",
-          "\"ตอนนี้ สายเลือดของข้ากำลังหยั่งรากและเติบโตอยู่ในมดลูกของท่าน\"",
-          "\"ถ้าท่านคิดจะฆ่าพวกเขาทันทีที่ลืมตาดูโลก ก็เชิญตามสบาย\"",
-          "\"แต่ท่านควรลองคิดดูให้ดีนะว่า ถึงตอนนั้น ข้า... บุรุษคนแรกที่ได้ผสมพันธุ์กับท่าน ก็คงตายไปนานถึงสิบเดือนแล้ว และท่านจะไม่มีวันผสมพันธุ์กับใครหน้าไหนได้อีกชั่วชีวิต\"",
-          "\"เมื่อกี้ท่านเพิ่งพูดว่าอะไรนะ? อ้อ ท่านบอกว่าตระกูลของข้าอาจต้องสูญสิ้นสายเลือดสินะ\"",
-          "\"ตอนนี้... ท่านเริ่มเข้าใจความรู้สึกของข้าบ้างหรือยังล่ะ?\"",
-          "คำพูดของลีออนเชือดเฉือน คมกริบราวดั่งมีดสั้นที่กระหน่ำแทงลงบนหัวใจของรอสวิธาอย่างไม่ปรานี",
-          "ทว่าแม้ปากจะเอ่ยวาจาร้ายกาจ ร่างกายของลีออนกลับทรุดโทรมลงอย่างรวดเร็ว",
-          "สติเริ่มเลือนราง เปลือกตาหนักอึ้งราวกับแบกน้ำหนักนับพันชั่ง เขาเริ่มรู้สึกได้ว่าอุณหภูมิในร่างกายกำลังค่อยๆ เย็นเฉียบลง วาระสุดท้ายใกล้เข้ามาแล้ว ทว่ามันก็เป็นเรื่องที่ช่วยไม่ได้ ลมหายใจของลีออนเริ่มติดขัด หายใจออกมากกว่าหายใจเข้า",
-          "\"ฝ่าบาทคงอยากจะฆ่าเจ้าคนสารเลวที่ทำให้ความบริสุทธิ์ของท่านต้องแปดเปื้อนคนนี้เต็มทนแล้วสินะ? ไม่ต้องลงมือเองหรอก ฝ่าบาท... ข้า... ข้า...\"",
-          "ปอดของเขาหยุดการทำงาน หัวใจที่เต้นรัวกระหน่ำอย่างรุนแรงเมื่อครู่เริ่มเต้นแผ่วลงเรื่อยๆ",
-          "<em>และด้วยถ้อยคำเหล่านี้ นักล่ามังกร วีรบุรุษแห่งยุคสมัย ก็ได้สิ้นลมหายใจลงในที่สุด</em>",
-          "ชิ้นส่วนเกราะที่แตกหักชิ้นสุดท้ายบนบ่าของเขาร่วงหล่น กระทบพื้นหินดังกังวานใส",
-          "เสียงนั้นก้องสะท้อนในคุกใต้ดินอันกว้างขวาง กระหน่ำตีลงบนหัวใจของรอสวิธาซ้ำแล้วซ้ำเล่า",
-          "เนิ่นนานหลังจากความเงียบงันเข้าปกคลุม ราชินีมังกรเงินจึงค่อยๆ ดึงสติตัวเองกลับมา",
-          "นางเงยหน้าขึ้น ในนัยน์ตาสัตว์เลื้อยคลานสีเงินคู่คม พลันมีเปลวเพลิงแห่งความมุ่งมั่นลุกโชนขึ้นมาอย่างไม่มีวันดับสูญ",
-          "นางพึมพำกับร่างที่ไร้ลมหายใจนั้น",
-          "\"อยากตายงั้นรึ? ไม่ง่ายขนาดนั้นหรอก\"",
-          "\"ลีออน แคสโมด... ลูกของเราจะไม่มีพ่อไม่ได้เด็ดขาด!\""
-        ]
-      }
-    ];
-
+    let booksData = [];
+    let currentBook = null;
+    let chaptersData = [];
     let currentChapterIndex = 0;
     let currentFontSize = 19;
 
+    async function init() {
+      // Load saved settings
+      const savedTheme = localStorage.getItem('novel_theme') || 'light';
+      setTheme(savedTheme);
+
+      const savedFontSize = localStorage.getItem('novel_font_size');
+      if (savedFontSize) {
+        currentFontSize = parseInt(savedFontSize, 10);
+        document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
+        document.getElementById('fontSizeDisplay').textContent = currentFontSize + 'px';
+      }
+
+      // Fetch Books metadata
+      try {
+        const res = await fetch('books.json');
+        booksData = await res.json();
+        renderBookshelf();
+      } catch (e) {
+        console.error("Error loading books:", e);
+      }
+
+      // Handle URL params (?book=dragon&ch=1)
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookId = urlParams.get('book');
+      const chNum = parseInt(urlParams.get('ch'), 10) || 1;
+
+      if (bookId) {
+        openBook(bookId, chNum - 1);
+      }
+    }
+
+    function renderBookshelf() {
+      const grid = document.getElementById('novelGrid');
+      grid.innerHTML = booksData.map(book => `
+        <div class="novel-card" onclick="openBook('${book.id}', 0)">
+          <div class="novel-card-title">${book.title}</div>
+          <div class="novel-card-orig">${book.originalTitle}</div>
+          <div class="tag-container">
+            ${book.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
+          </div>
+          <div class="novel-card-synopsis">${book.synopsis}</div>
+          <div class="novel-card-footer">
+            <span>สถานะ: ${book.status}</span>
+            <span>${book.chapterCount > 0 ? book.chapterCount + ' ตอน' : 'เร็วๆ นี้'} →</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function openBook(bookId, startChIndex = 0) {
+      currentBook = booksData.find(b => b.id === bookId);
+      if (!currentBook) return;
+
+      if (currentBook.chapterCount === 0) {
+        alert("เรื่องนี้อยู่ระหว่างจัดเตรียมข้อมูล จะเริ่มแปลเร็วๆ นี้ครับ!");
+        return;
+      }
+
+      try {
+        const res = await fetch(currentBook.chaptersPath);
+        chaptersData = await res.json();
+        
+        document.getElementById('shelfView').style.display = 'none';
+        document.getElementById('readerView').style.display = 'block';
+        document.getElementById('btnShelf').style.display = 'flex';
+        document.getElementById('btnChapters').style.display = 'flex';
+        document.getElementById('topBookTitle').textContent = currentBook.title;
+
+        renderChapter(startChIndex >= 0 && startChIndex < chaptersData.length ? startChIndex : 0);
+      } catch (err) {
+        console.error("Failed to load chapters:", err);
+      }
+    }
+
+    function showShelf() {
+      document.getElementById('shelfView').style.display = 'block';
+      document.getElementById('readerView').style.display = 'none';
+      document.getElementById('btnShelf').style.display = 'none';
+      document.getElementById('btnChapters').style.display = 'none';
+      document.getElementById('topBookTitle').textContent = "Pika's Bookshelf";
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+
     function renderChapter(index) {
       currentChapterIndex = index;
-      const chapter = chaptersData[index];
+      const ch = chaptersData[index];
       
-      document.getElementById('chapterTitle').textContent = chapter.title;
-      document.getElementById('chapterMeta').textContent = `Volume ${chapter.vol} • Chapter ${chapter.chNum}`;
+      document.getElementById('chapterTitle').textContent = ch.title;
+      document.getElementById('chapterMeta').textContent = `${currentBook.title} • ตอนที่ ${ch.chapter}`;
       
       const contentEl = document.getElementById('novelContent');
-      contentEl.innerHTML = chapter.paragraphs.map(p => {
+      contentEl.innerHTML = ch.paragraphs.map(p => {
         if (p.includes('<div class="divider">')) return p;
         return `<p>${p}</p>`;
       }).join('');
 
-      // Update button states
       document.getElementById('prevBtn').disabled = index === 0;
       document.getElementById('nextBtn').disabled = index === chaptersData.length - 1;
 
       renderChapterList();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Update URL without reload
+      const newUrl = `${window.location.pathname}?book=${currentBook.id}&ch=${ch.chapter}`;
+      window.history.replaceState(null, '', newUrl);
     }
 
     function renderChapterList() {
@@ -642,7 +707,6 @@
       if (currentChapterIndex < chaptersData.length - 1) renderChapter(currentChapterIndex + 1);
     }
 
-    // Drawer management
     function openDrawer(id) {
       document.getElementById('overlay').classList.add('active');
       document.getElementById(id).classList.add('active');
@@ -653,7 +717,6 @@
       document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active'));
     }
 
-    // Settings
     function setTheme(theme) {
       if (theme === 'light') {
         document.documentElement.removeAttribute('data-theme');
@@ -674,20 +737,7 @@
       localStorage.setItem('novel_font_size', currentFontSize);
     }
 
-    // Init
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('novel_theme') || 'light';
-      setTheme(savedTheme);
-
-      const savedFontSize = localStorage.getItem('novel_font_size');
-      if (savedFontSize) {
-        currentFontSize = parseInt(savedFontSize, 10);
-        document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
-        document.getElementById('fontSizeDisplay').textContent = currentFontSize + 'px';
-      }
-
-      renderChapter(0);
-    });
+    window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
