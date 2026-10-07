@@ -5,6 +5,8 @@
 - **ชื่อเรื่องภาษาเกาหลี:** SSS급 죽어야 사는 헌터
 - **ชื่อเรื่องภาษาไทย:** ฮันเตอร์สายคืนชีพ คลาส SSS (หรือ ฮันเตอร์แรงก์ SSS ต้องตายถึงจะรอด)
 - **แนวเรื่อง:** Action, Fantasy, Tower Climbing, Time Loop, Psychological, Regression
+- **แหล่งต้นฉบับหลัก:** [Wuxiaworld](https://www.wuxiaworld.com/novel/sss-class-revival-hunter)
+- **แหล่งต้นฉบับสำรอง (ฟรี/ครบ 401 ตอน):** [Novel Translation Hub](https://noveltranslationhub.com/novel/sss-class-suicide-hunter/) (เริ่มต้นที่ chapter-1 ถึง chapter-401)
 
 ---
 
