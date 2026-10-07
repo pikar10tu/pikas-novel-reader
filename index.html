@@ -167,13 +167,41 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 14px;
-      padding: 18px;
+      padding: 16px;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      flex-direction: row;
+      gap: 16px;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .novel-card-cover {
+      width: 100px;
+      height: 145px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border: 1px solid var(--border-color);
+    }
+
+    .novel-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    @media (max-width: 480px) {
+      .novel-card {
+        flex-direction: column;
+      }
+      .novel-card-cover {
+        width: 100%;
+        height: 200px;
+      }
     }
 
     .novel-card:hover {
@@ -612,15 +640,18 @@
       const grid = document.getElementById('novelGrid');
       grid.innerHTML = booksData.map(book => `
         <div class="novel-card" onclick="openBook('${book.id}', 0)">
-          <div class="novel-card-title">${book.title}</div>
-          <div class="novel-card-orig">${book.originalTitle}</div>
-          <div class="tag-container">
-            ${book.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
-          </div>
-          <div class="novel-card-synopsis">${book.synopsis}</div>
-          <div class="novel-card-footer">
-            <span>สถานะ: ${book.status}</span>
-            <span>${book.chapterCount > 0 ? book.chapterCount + ' ตอน' : 'เร็วๆ นี้'} →</span>
+          <img class="novel-card-cover" src="${book.cover}" alt="${book.title}" loading="lazy">
+          <div class="novel-card-info">
+            <div class="novel-card-title">${book.title}</div>
+            <div class="novel-card-orig">${book.originalTitle}</div>
+            <div class="tag-container">
+              ${book.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
+            </div>
+            <div class="novel-card-synopsis">${book.synopsis}</div>
+            <div class="novel-card-footer">
+              <span>สถานะ: ${book.status}</span>
+              <span>${book.chapterCount > 0 ? book.chapterCount + ' ตอน' : 'เร็วๆ นี้'} →</span>
+            </div>
           </div>
         </div>
       `).join('');
