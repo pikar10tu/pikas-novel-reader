@@ -79,6 +79,8 @@ def main():
             latin = {w for w in re.findall(r'[A-Za-z]{2,}', text) if w not in ALLOWED_LATIN}
             if latin:
                 issues.append(('WARN', f'คำอังกฤษ {sorted(latin)[:6]}'))
+            if '[SKIPPED' in text:
+                issues.append(('ERROR', f"มีฉากที่ AI ผู้แปลข้ามไว้ {text.count('[SKIPPED')} จุด — ส่งให้ Claude แปลต่อ"))
             if '[NOTE' in text:
                 issues.append(('WARN', 'ยังมี [NOTE: ...] ค้างในเนื้อหา'))
             long = [i + 1 for i, p in enumerate(ch['paragraphs']) if len(p) > MAX_PARA]
