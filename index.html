@@ -2,773 +2,656 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
-  <title>Pika's Novel Reader</title>
+  <meta name="theme-color" content="#f6f1e7">
+  <title>Pika's Bookshelf</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Sarabun:ital,wght@0,400;0,500;0,600;1,400&family=Anuphan:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* ---------- Tokens ---------- */
     :root {
-      --bg-color: #f8f9fa;
-      --card-bg: #ffffff;
-      --text-color: #212529;
-      --subtext-color: #6c757d;
-      --border-color: #e9ecef;
-      --accent-color: #7c3aed;
-      --accent-hover: #6d28d9;
-      --nav-bg: rgba(255, 255, 255, 0.95);
-      --font-size: 19px;
-      --line-height: 1.85;
-      --content-max-width: 800px;
-    }
+      --bg: #f6f1e7;
+      --surface: #fffdf8;
+      --surface-2: #efe7d8;
+      --ink: #2a2118;
+      --ink-2: #6f6253;
+      --line: #e3d8c4;
+      --accent: #b4441f;
+      --accent-ink: #ffffff;
+      --accent-soft: #f3dccd;
+      --shadow: 0 1px 2px rgba(42,33,24,.06), 0 8px 24px rgba(42,33,24,.08);
+      --reader-bg: #f6f1e7;
+      --reader-ink: #2a2118;
 
-    [data-theme="sepia"] {
-      --bg-color: #f4ecd8;
-      --card-bg: #faf4e8;
-      --text-color: #433422;
-      --subtext-color: #796e62;
-      --border-color: #e6dcbe;
-      --accent-color: #a85a1a;
-      --accent-hover: #8f4b13;
-      --nav-bg: rgba(250, 244, 232, 0.95);
+      --font-ui: 'Anuphan', system-ui, sans-serif;
+      --font-head: 'Noto Serif Thai', serif;
+      --font-read: 'Sarabun', sans-serif;
+      --fs: 19px;
+      --lh: 1.9;
+      --measure: 40em;
+      --radius: 14px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
     }
-
+    /* ระบบมืดตามเครื่อง (ถ้ายังไม่ได้เลือกธีมเอง) */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) {
+        --bg: #16140f; --surface: #1f1c16; --surface-2: #2a261e; --ink: #ece4d6; --ink-2: #a89c8a;
+        --line: #343026; --accent: #e8825a; --accent-ink: #1a120c; --accent-soft: #3a261c;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+        --reader-bg: #16140f; --reader-ink: #ddd4c4;
+      }
+    }
+    [data-theme="light"] {
+      --bg: #f7f7f5; --surface: #ffffff; --surface-2: #eeeeea; --ink: #1d1d1b; --ink-2: #6b6b66;
+      --line: #e2e2dc; --accent: #b4441f; --accent-soft: #f6e1d6; --reader-bg: #ffffff; --reader-ink: #1d1d1b;
+    }
+    [data-theme="sepia"] { /* ค่าเริ่มต้น :root คือ sepia อยู่แล้ว */ }
     [data-theme="dark"] {
-      --bg-color: #121316;
-      --card-bg: #1c1e24;
-      --text-color: #e5e7eb;
-      --subtext-color: #9ca3af;
-      --border-color: #2e323b;
-      --accent-color: #a78bfa;
-      --accent-hover: #c4b5fd;
-      --nav-bg: rgba(28, 30, 36, 0.95);
+      --bg: #16140f; --surface: #1f1c16; --surface-2: #2a261e; --ink: #ece4d6; --ink-2: #a89c8a;
+      --line: #343026; --accent: #e8825a; --accent-ink: #1a120c; --accent-soft: #3a261c;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --reader-bg: #16140f; --reader-ink: #ddd4c4;
     }
-
     [data-theme="black"] {
-      --bg-color: #000000;
-      --card-bg: #0d0d0d;
-      --text-color: #d1d5db;
-      --subtext-color: #808080;
-      --border-color: #222222;
-      --accent-color: #93c5fd;
-      --accent-hover: #bfdbfe;
-      --nav-bg: rgba(13, 13, 13, 0.95);
+      --bg: #000; --surface: #0c0c0c; --surface-2: #181818; --ink: #e6e6e6; --ink-2: #8a8a8a;
+      --line: #222; --accent: #e8825a; --accent-ink: #000; --accent-soft: #2a1a12;
+      --shadow: none; --reader-bg: #000; --reader-ink: #c9c9c9;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    /* ---------- Base ---------- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-ui); background: var(--bg); color: var(--ink);
+      min-height: 100dvh; transition: background .25s, color .25s;
       -webkit-tap-highlight-color: transparent;
     }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+    img { display: block; max-width: 100%; }
+    .view { display: none; }
+    .view.active { display: block; animation: fade .25s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+    .icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: var(--font-size);
-      line-height: var(--line-height);
-      transition: background-color 0.25s ease, color 0.25s ease;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    /* ---------- Top bar ---------- */
+    .topbar {
+      position: sticky; top: 0; z-index: 30; height: 56px;
+      display: flex; align-items: center; gap: 8px; padding: 0 12px;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent; transition: transform .25s, border-color .25s;
     }
+    .topbar.scrolled { border-bottom-color: var(--line); }
+    .topbar.hidden { transform: translateY(-100%); }
+    .topbar .title { flex: 1; min-width: 0; font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand { font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; letter-spacing: .01em; }
+    .brand b { color: var(--accent); }
+    .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; }
+    .icon-btn:hover { background: var(--surface-2); }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--nav-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
+    /* ---------- Shelf ---------- */
+    .shelf-head { padding: 28px 0 8px; }
+    .shelf-head h1 { font-family: var(--font-head); font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.3; }
+    .shelf-head p { color: var(--ink-2); margin-top: 6px; }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      overflow: hidden;
-      cursor: pointer;
+    .continue {
+      margin: 22px 0 8px; display: flex; gap: 16px; align-items: center;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 14px; box-shadow: var(--shadow); cursor: pointer; text-align: left; width: 100%;
     }
+    .continue img { width: 64px; aspect-ratio: 2/3; object-fit: cover; border-radius: 8px; }
+    .continue .meta { flex: 1; min-width: 0; }
+    .eyebrow { font-size: .78rem; font-weight: 600; color: var(--accent); letter-spacing: .04em; }
+    .continue .t { font-weight: 600; margin: 2px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .continue .s { font-size: .88rem; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pill-btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 18px;
+      border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 600; white-space: nowrap;
+    }
+    .pill-btn.ghost { background: var(--surface-2); color: var(--ink); }
 
-    .book-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--accent-color);
+    .section-title { font-family: var(--font-head); font-size: 1.15rem; margin: 26px 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 22px 18px; padding-bottom: 48px; }
+    @media (min-width: 720px) { .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 28px 22px; } }
+    .book { text-align: left; display: flex; flex-direction: column; gap: 10px; }
+    .cover {
+      position: relative; aspect-ratio: 2/3; border-radius: 10px; overflow: hidden;
+      background: var(--surface-2); box-shadow: var(--shadow); transition: transform .2s;
     }
+    .book:hover .cover { transform: translateY(-3px); }
+    .cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover .badge {
+      position: absolute; top: 8px; left: 8px; font-size: .72rem; font-weight: 600;
+      padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff;
+    }
+    .progress { height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+    .progress > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+    .book .t { font-weight: 600; font-size: .95rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .book .s { font-size: .82rem; color: var(--ink-2); }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
+    /* ---------- Book detail ---------- */
+    .detail { padding-top: 18px; padding-bottom: 60px; }
+    .detail-top { display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: end; }
+    @media (min-width: 720px) { .detail-top { grid-template-columns: 200px 1fr; gap: 32px; } }
+    .detail-top .cover { box-shadow: 0 12px 32px rgba(0,0,0,.18); }
+    .detail h1 { font-family: var(--font-head); font-size: clamp(1.25rem, 3.4vw, 1.9rem); line-height: 1.4; }
+    .detail .orig { color: var(--ink-2); font-size: .9rem; margin-top: 6px; }
+    .stats { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--ink-2); font-size: .88rem; margin-top: 10px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag { font-size: .78rem; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); }
+    .actions { display: flex; gap: 10px; margin: 22px 0 6px; flex-wrap: wrap; }
+    .synopsis { font-family: var(--font-read); line-height: 1.85; color: var(--ink); margin-top: 18px; max-width: 46em; }
+    .synopsis.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .more { color: var(--accent); font-weight: 600; font-size: .9rem; margin-top: 6px; }
 
-    .btn-icon {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-family: inherit;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s;
+    .toc-head { display: flex; align-items: center; gap: 12px; margin: 30px 0 10px; }
+    .toc-head h2 { font-family: var(--font-head); font-size: 1.15rem; flex: 1; }
+    .search {
+      width: 100%; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--surface); color: var(--ink); font: inherit; margin-bottom: 8px;
     }
+    .toc { list-style: none; }
+    .toc li button {
+      width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+      padding: 13px 6px; border-bottom: 1px solid var(--line); min-height: 52px;
+    }
+    .toc li button:hover { background: var(--surface-2); }
+    .toc .num { width: 2.6em; flex: none; font-variant-numeric: tabular-nums; color: var(--ink-2); font-size: .85rem; }
+    .toc .name { flex: 1; min-width: 0; line-height: 1.5; }
+    .toc .read .name { color: var(--ink-2); }
+    .toc .current .name { color: var(--accent); font-weight: 600; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
 
-    .btn-icon:hover {
-      background: var(--border-color);
+    /* ---------- Reader ---------- */
+    #reader { background: var(--reader-bg); color: var(--reader-ink); min-height: 100dvh; }
+    .read-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 40; width: 0; transition: width .1s linear; }
+    .chapter { max-width: var(--measure); margin: 0 auto; padding: 28px 22px 40px; }
+    .chapter .kicker { font-size: .82rem; color: var(--ink-2); font-weight: 500; }
+    .chapter h1 { font-family: var(--font-head); font-size: calc(var(--fs) * 1.35); line-height: 1.5; margin: 8px 0 30px; }
+    .prose { font-family: var(--font-read); font-size: var(--fs); line-height: var(--lh); }
+    .prose p { margin-bottom: .95em; overflow-wrap: anywhere; }
+    .prose .divider { text-align: center; color: var(--ink-2); letter-spacing: .6em; margin: 1.8em 0; font-size: .85em; }
+    .chapter-end { max-width: var(--measure); margin: 0 auto; padding: 0 22px calc(110px + var(--safe-b)); }
+    .next-card {
+      width: 100%; text-align: left; display: flex; align-items: center; gap: 14px;
+      padding: 18px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line);
     }
+    .next-card .meta { flex: 1; min-width: 0; }
+    .next-card .t { font-weight: 600; margin-top: 2px; line-height: 1.5; }
+    .end-note { text-align: center; color: var(--ink-2); font-size: .9rem; padding: 18px 0; }
 
-    /* Bookshelf View */
-    #shelfView {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 24px 20px 60px;
-      width: 100%;
+    .dock {
+      position: fixed; left: 50%; bottom: calc(14px + var(--safe-b)); z-index: 30;
+      transform: translateX(-50%); display: flex; gap: 2px; padding: 5px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow);
+      transition: transform .25s, opacity .25s;
     }
+    .dock.hidden { transform: translate(-50%, 140%); opacity: 0; }
+    .dock button { height: 46px; min-width: 52px; padding: 0 12px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: .88rem; font-weight: 500; }
+    .dock button:hover:not(:disabled) { background: var(--surface-2); }
+    .dock button:disabled { opacity: .3; cursor: default; }
+    .dock .lbl { display: none; }
+    @media (min-width: 560px) { .dock .lbl { display: inline; } }
 
-    .shelf-header {
-      margin-bottom: 24px;
+    /* ---------- Sheets ---------- */
+    .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 50; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .scrim.open { opacity: 1; pointer-events: auto; }
+    .sheet {
+      position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; max-height: 82dvh; overflow: auto;
+      background: var(--surface); color: var(--ink); border-radius: 20px 20px 0 0;
+      padding: 8px 20px calc(24px + var(--safe-b)); transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.8,.2,1);
+      max-width: 640px; margin: 0 auto; box-shadow: 0 -8px 40px rgba(0,0,0,.2);
     }
+    .sheet.open { transform: none; }
+    .grabber { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 6px auto 14px; }
+    .sheet h3 { font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 14px; display: flex; align-items: center; }
+    .sheet h3 span { flex: 1; }
+    .row { margin-bottom: 20px; }
+    .row .lab { font-size: .85rem; color: var(--ink-2); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+    .seg button { height: 44px; border-radius: 12px; border: 1px solid var(--line); font-size: .9rem; }
+    .seg button.on { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+    .swatch { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 58px !important; }
+    .swatch i { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); }
+    .stepper { display: flex; align-items: center; gap: 10px; }
+    .stepper button { width: 48px; height: 44px; border-radius: 12px; border: 1px solid var(--line); font-weight: 600; }
+    .stepper output { flex: 1; text-align: center; font-variant-numeric: tabular-nums; }
+    .sheet .toc { margin: 0 -6px; }
 
-    .shelf-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 6px;
+    .toast {
+      position: fixed; left: 50%; bottom: calc(84px + var(--safe-b)); transform: translate(-50%, 20px);
+      background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: .88rem;
+      opacity: 0; pointer-events: none; transition: .25s; z-index: 70; white-space: nowrap;
     }
-
-    .shelf-desc {
-      font-size: 0.95rem;
-      color: var(--subtext-color);
-    }
-
-    .novel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .novel-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      flex-direction: row;
-      gap: 16px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-
-    .novel-card-cover {
-      width: 100px;
-      height: 145px;
-      border-radius: 8px;
-      object-fit: cover;
-      flex-shrink: 0;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      border: 1px solid var(--border-color);
-    }
-
-    .novel-card-info {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    @media (max-width: 480px) {
-      .novel-card {
-        flex-direction: column;
-      }
-      .novel-card-cover {
-        width: 100%;
-        height: 200px;
-      }
-    }
-
-    .novel-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      border-color: var(--accent-color);
-    }
-
-    .novel-card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-color);
-      line-height: 1.4;
-    }
-
-    .novel-card-orig {
-      font-size: 0.85rem;
-      color: var(--subtext-color);
-      font-style: italic;
-    }
-
-    .tag-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .tag-chip {
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      font-size: 0.75rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      color: var(--subtext-color);
-    }
-
-    .novel-card-synopsis {
-      font-size: 0.88rem;
-      color: var(--subtext-color);
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .novel-card-footer {
-      margin-top: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 10px;
-      border-top: 1px dashed var(--border-color);
-      font-size: 0.85rem;
-      color: var(--accent-color);
-      font-weight: 600;
-    }
-
-    /* Reader View */
-    #readerView {
-      display: none;
-      flex: 1;
-      width: 100%;
-      max-width: var(--content-max-width);
-      margin: 0 auto;
-      padding: 24px 20px 60px;
-    }
-
-    .reader-header {
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px dashed var(--border-color);
-    }
-
-    .reader-chapter-title {
-      font-size: 1.45rem;
-      font-weight: 700;
-      line-height: 1.4;
-      color: var(--text-color);
-      margin-bottom: 6px;
-    }
-
-    .reader-meta {
-      font-size: 0.85rem;
-      color: var(--subtext-color);
-    }
-
-    .novel-body p {
-      margin-bottom: 1.25em;
-      text-align: justify;
-      text-justify: inter-cluster;
-      letter-spacing: -0.01em;
-    }
-
-    .novel-body p em {
-      font-style: italic;
-      color: var(--subtext-color);
-    }
-
-    .novel-body p strong {
-      font-weight: 700;
-    }
-
-    .divider {
-      text-align: center;
-      margin: 2em 0;
-      color: var(--subtext-color);
-      letter-spacing: 0.4em;
-    }
-
-    .chapter-nav-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-color);
-      gap: 12px;
-    }
-
-    .nav-btn {
-      padding: 10px 18px;
-      border-radius: 10px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      background: var(--accent-color);
-      color: #ffffff;
-      border-color: var(--accent-color);
-    }
-
-    .nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* Modal / Drawer */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .drawer-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .drawer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      max-height: 80vh;
-      background: var(--card-bg);
-      border-radius: 20px 20px 0 0;
-      z-index: 210;
-      padding: 20px;
-      box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    @media (min-width: 640px) {
-      .drawer {
-        left: 50%;
-        transform: translate(-50%, 100%);
-        max-width: 500px;
-        border-radius: 20px;
-        bottom: 40px;
-      }
-      .drawer.active {
-        transform: translate(-50%, 0) !important;
-      }
-    }
-
-    .drawer.active {
-      transform: translateY(0);
-    }
-
-    .drawer-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--subtext-color);
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-
-    .setting-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .setting-label {
-      font-size: 0.85rem;
-      color: var(--subtext-color);
-      font-weight: 500;
-    }
-
-    .theme-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .theme-btn {
-      padding: 10px 6px;
-      border-radius: 8px;
-      border: 2px solid var(--border-color);
-      font-size: 0.85rem;
-      font-family: inherit;
-      cursor: pointer;
-      text-align: center;
-      font-weight: 500;
-      background: var(--bg-color);
-      color: var(--text-color);
-    }
-
-    .theme-btn.active {
-      border-color: var(--accent-color);
-      font-weight: 700;
-    }
-
-    .font-size-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .font-size-btn {
-      flex: 1;
-      padding: 8px;
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .chapter-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 350px;
-      overflow-y: auto;
-    }
-
-    .chapter-item {
-      padding: 12px 14px;
-      border-radius: 8px;
-      background: var(--bg-color);
-      color: var(--text-color);
-      text-decoration: none;
-      font-size: 0.95rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s;
-    }
-
-    .chapter-item:hover, .chapter-item.active {
-      background: var(--accent-color);
-      color: #ffffff;
-    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .empty { color: var(--ink-2); padding: 40px 0; text-align: center; }
+    .skeleton p { height: 1em; background: var(--surface-2); border-radius: 6px; margin-bottom: 1.2em; }
   </style>
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5v14zM20 17v4H6.5A2.5 2.5 0 014 18.5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></symbol>
+  </svg>
 
-  <!-- Top Navigation Header -->
-  <header>
-    <div class="header-left" onclick="showShelf()">
-      <span class="btn-icon" style="padding: 4px 8px; border: none; font-size: 1rem;">📚</span>
-      <span class="book-title" id="topBookTitle">Pika's Bookshelf</span>
-    </div>
-    <div class="header-actions">
-      <button class="btn-icon" id="btnShelf" onclick="showShelf()" style="display: none;">
-        🏠 ชั้นหนังสือ
-      </button>
-      <button class="btn-icon" id="btnChapters" onclick="openDrawer('chapterDrawer')" style="display: none;">
-        📖 สารบัญ
-      </button>
-      <button class="btn-icon" onclick="openDrawer('settingDrawer')">
-        ⚙️ ตั้งค่า
-      </button>
-    </div>
+  <div class="read-progress" id="readProgress" hidden></div>
+
+  <header class="topbar" id="topbar">
+    <button class="icon-btn" id="backBtn" aria-label="ย้อนกลับ" hidden><svg class="icon"><use href="#i-back"/></svg></button>
+    <div class="title" id="topTitle"><span class="brand">Pika's <b>Bookshelf</b></span></div>
+    <button class="icon-btn" id="settingsBtn" aria-label="ตั้งค่าการอ่าน"><svg class="icon"><use href="#i-type"/></svg></button>
   </header>
 
-  <!-- Bookshelf Screen -->
-  <section id="shelfView">
-    <div class="shelf-header">
-      <h1 class="shelf-title">📚 ชั้นหนังสือนิยาย</h1>
-      <p class="shelf-desc">เลือกเรื่องที่ต้องการอ่าน แปลไทยสำนวนสละสลวย</p>
-    </div>
-    <div class="novel-grid" id="novelGrid">
-      <!-- Injected via JS -->
+  <!-- ชั้นหนังสือ -->
+  <section class="view" id="shelf">
+    <div class="wrap">
+      <div class="shelf-head">
+        <h1>นิยายแปลที่อยากให้คุณได้อ่าน</h1>
+        <p>แปลไทยด้วยใจ อ่านสบายตาทั้งบนมือถือและคอม</p>
+      </div>
+      <div id="continueSlot"></div>
+      <h2 class="section-title">ทุกเรื่อง</h2>
+      <div class="grid" id="grid"></div>
     </div>
   </section>
 
-  <!-- Novel Reader Screen -->
-  <main id="readerView">
-    <div class="reader-header">
-      <h1 class="reader-chapter-title" id="chapterTitle">กำลังโหลด...</h1>
-      <div class="reader-meta" id="chapterMeta">Vol 1</div>
-    </div>
+  <!-- หน้ารายละเอียดเรื่อง -->
+  <section class="view" id="detail">
+    <div class="wrap detail">
+      <div class="detail-top">
+        <div class="cover"><img id="dCover" alt=""></div>
+        <div>
+          <h1 id="dTitle"></h1>
+          <div class="orig" id="dOrig"></div>
+          <div class="stats" id="dStats"></div>
+        </div>
+      </div>
+      <div class="tags" id="dTags"></div>
+      <div class="actions" id="dActions"></div>
+      <p class="synopsis clamp" id="dSyn"></p>
+      <button class="more" id="dMore">อ่านเพิ่มเติม</button>
 
-    <article class="novel-body" id="novelContent">
-      <!-- Chapter text injected here -->
+      <div class="toc-head">
+        <h2>สารบัญ</h2>
+        <button class="icon-btn" id="sortBtn" aria-label="สลับลำดับตอน"><svg class="icon"><use href="#i-sort"/></svg></button>
+      </div>
+      <input class="search" id="tocSearch" type="search" placeholder="ค้นหาตอน เช่น 64 หรือ ชื่อตอน" inputmode="search">
+      <ul class="toc" id="dToc"></ul>
+    </div>
+  </section>
+
+  <!-- หน้าอ่าน -->
+  <section class="view" id="reader">
+    <article class="chapter">
+      <div class="kicker" id="rKicker"></div>
+      <h1 id="rTitle"></h1>
+      <div class="prose" id="rBody"></div>
     </article>
+    <div class="chapter-end" id="rEnd"></div>
+    <nav class="dock" id="dock" aria-label="ควบคุมการอ่าน">
+      <button id="prevBtn" aria-label="ตอนก่อนหน้า"><svg class="icon"><use href="#i-back"/></svg><span class="lbl">ก่อนหน้า</span></button>
+      <button id="tocBtn" aria-label="สารบัญ"><svg class="icon"><use href="#i-list"/></svg><span class="lbl">สารบัญ</span></button>
+      <button id="dockSettingsBtn" aria-label="ตั้งค่าการอ่าน"><svg class="icon"><use href="#i-type"/></svg><span class="lbl">ตัวอักษร</span></button>
+      <button id="nextBtn" aria-label="ตอนถัดไป"><span class="lbl">ถัดไป</span><svg class="icon"><use href="#i-next"/></svg></button>
+    </nav>
+  </section>
 
-    <div class="chapter-nav-bottom">
-      <button class="nav-btn" id="prevBtn" onclick="prevChapter()" disabled>
-        ← ตอนก่อนหน้า
-      </button>
-      <button class="nav-btn" onclick="openDrawer('chapterDrawer')">
-        สารบัญตอน
-      </button>
-      <button class="nav-btn" id="nextBtn" onclick="nextChapter()" disabled>
-        ตอนถัดไป →
-      </button>
-    </div>
-  </main>
+  <div class="scrim" id="scrim"></div>
 
-  <!-- Overlay -->
-  <div class="drawer-overlay" id="overlay" onclick="closeAllDrawers()"></div>
-
-  <!-- Settings Drawer -->
-  <div class="drawer" id="settingDrawer">
-    <div class="drawer-title">
-      <span>ตั้งค่าการอ่าน</span>
-      <button class="close-btn" onclick="closeAllDrawers()">&times;</button>
-    </div>
-
-    <div class="setting-group">
-      <div class="setting-label">ธีมสีพื้นหลัง</div>
-      <div class="theme-grid">
-        <button class="theme-btn active" onclick="setTheme('light')">ขาว</button>
-        <button class="theme-btn" onclick="setTheme('sepia')">ถนอมสายตา</button>
-        <button class="theme-btn" onclick="setTheme('dark')">เทาดำ</button>
-        <button class="theme-btn" onclick="setTheme('black')">มืดสนิท</button>
+  <div class="sheet" id="settingsSheet" role="dialog" aria-label="ตั้งค่าการอ่าน">
+    <div class="grabber"></div>
+    <h3><span>ตั้งค่าการอ่าน</span><button class="icon-btn" data-close aria-label="ปิด"><svg class="icon"><use href="#i-x"/></svg></button></h3>
+    <div class="row">
+      <div class="lab">ธีม</div>
+      <div class="seg" id="themeSeg">
+        <button class="swatch" data-v="light"><i style="background:#fff"></i>ขาว</button>
+        <button class="swatch" data-v="sepia"><i style="background:#f6f1e7"></i>กระดาษ</button>
+        <button class="swatch" data-v="dark"><i style="background:#1f1c16"></i>มืด</button>
+        <button class="swatch" data-v="black"><i style="background:#000"></i>ดำสนิท</button>
       </div>
     </div>
-
-    <div class="setting-group">
-      <div class="setting-label">ขนาดตัวอักษร (<span id="fontSizeDisplay">19px</span>)</div>
-      <div class="font-size-controls">
-        <button class="font-size-btn" onclick="changeFontSize(-1)">A-</button>
-        <button class="font-size-btn" onclick="changeFontSize(1)">A+</button>
+    <div class="row">
+      <div class="lab"><span>ขนาดตัวอักษร</span></div>
+      <div class="stepper"><button data-fs="-1" aria-label="เล็กลง">ก−</button><output id="fsOut">19</output><button data-fs="1" aria-label="ใหญ่ขึ้น">ก+</button></div>
+    </div>
+    <div class="row">
+      <div class="lab">ฟอนต์</div>
+      <div class="seg" id="fontSeg">
+        <button data-v="sarabun" style="font-family:Sarabun">สารบรรณ</button>
+        <button data-v="serif" style="font-family:'Noto Serif Thai'">มีหัว</button>
+        <button data-v="anuphan" style="font-family:Anuphan">โมเดิร์น</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lab">ระยะบรรทัด</div>
+      <div class="seg" id="lhSeg">
+        <button data-v="1.65">แน่น</button><button data-v="1.9">ปกติ</button><button data-v="2.2">โปร่ง</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lab">ความกว้างหน้า (จอใหญ่)</div>
+      <div class="seg" id="widthSeg">
+        <button data-v="34em">แคบ</button><button data-v="40em">ปกติ</button><button data-v="52em">กว้าง</button>
       </div>
     </div>
   </div>
 
-  <!-- Chapters Drawer -->
-  <div class="drawer" id="chapterDrawer">
-    <div class="drawer-title">
-      <span>สารบัญตอน</span>
-      <button class="close-btn" onclick="closeAllDrawers()">&times;</button>
-    </div>
-    <ul class="chapter-list" id="chapterList">
-      <!-- Injected via JS -->
-    </ul>
+  <div class="sheet" id="tocSheet" role="dialog" aria-label="สารบัญ">
+    <div class="grabber"></div>
+    <h3><span id="tocSheetTitle">สารบัญ</span><button class="icon-btn" data-close aria-label="ปิด"><svg class="icon"><use href="#i-x"/></svg></button></h3>
+    <ul class="toc" id="sheetToc"></ul>
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
-    let booksData = [];
-    let currentBook = null;
-    let chaptersData = [];
-    let currentChapterIndex = 0;
-    let currentFontSize = 19;
+  // ===================== state & storage =====================
+  const $ = (s) => document.querySelector(s);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('pika_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('pika_' + k, JSON.stringify(v)); } catch (e) {} },
+  };
+  // ย้ายค่าตั้งค่าจากเวอร์ชันเก่า
+  (function migrate() {
+    try {
+      const t = localStorage.getItem('novel_theme'); if (t && store.get('theme') === undefined) store.set('theme', t);
+      const f = localStorage.getItem('novel_font_size'); if (f && store.get('fs') === undefined) store.set('fs', +f);
+    } catch (e) {}
+  })();
 
-    async function init() {
-      // Load saved settings
-      const savedTheme = localStorage.getItem('novel_theme') || 'light';
-      setTheme(savedTheme);
+  const prefs = {
+    theme: store.get('theme', null), fs: store.get('fs', 19), font: store.get('font', 'sarabun'),
+    lh: store.get('lh', '1.9'), width: store.get('width', '40em'),
+  };
+  // progress: { [bookId]: { ch, pct, at } }, read: { [bookId]: [ch...] }
+  const progress = store.get('progress', {});
+  const readSet = store.get('read', {});
+  const FONTS = { sarabun: "'Sarabun', sans-serif", serif: "'Noto Serif Thai', serif", anuphan: "'Anuphan', sans-serif" };
 
-      const savedFontSize = localStorage.getItem('novel_font_size');
-      if (savedFontSize) {
-        currentFontSize = parseInt(savedFontSize, 10);
-        document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
-        document.getElementById('fontSizeDisplay').textContent = currentFontSize + 'px';
-      }
+  let books = [], book = null, toc = [], chIdx = 0, sortDesc = false;
+  const cache = {};
 
-      // Fetch Books metadata
-      try {
-        const res = await fetch('books.json');
-        booksData = await res.json();
-        renderBookshelf();
-      } catch (e) {
-        console.error("Error loading books:", e);
-      }
-
-      // Handle URL params (?book=dragon&ch=1)
-      const urlParams = new URLSearchParams(window.location.search);
-      const bookId = urlParams.get('book');
-      const chNum = parseInt(urlParams.get('ch'), 10) || 1;
-
-      if (bookId) {
-        openBook(bookId, chNum - 1);
-      }
+  // ===================== helpers =====================
+  function el(tag, props = {}, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) n.setAttribute(k, v);
     }
+    kids.flat().forEach(c => c != null && c !== false && n.append(c));
+    return n;
+  }
+  const icon = (id) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('class', 'icon'); const u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('href', '#' + id); s.append(u); return s; };
+  const pad = (n) => String(n).padStart(3, '0');
+  const chLabel = (t) => t.replace(/^ตอนที่\s*\d+\s*[:：]\s*/, '');
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1800); }
+  function saveProgress(ch, pct) {
+    progress[book.id] = { ch, pct: Math.round(pct * 1000) / 1000, at: Date.now() };
+    store.set('progress', progress);
+  }
+  function markRead(ch) {
+    const s = new Set(readSet[book.id] || []); if (s.has(ch)) return;
+    s.add(ch); readSet[book.id] = [...s]; store.set('read', readSet);
+  }
+  const bookDir = (b) => b.chaptersPath.replace(/[^/]*$/, '');
 
-    function renderBookshelf() {
-      const grid = document.getElementById('novelGrid');
-      grid.innerHTML = booksData.map(book => `
-        <div class="novel-card" onclick="openBook('${book.id}', 0)">
-          <img class="novel-card-cover" src="${book.cover}" alt="${book.title}" loading="lazy">
-          <div class="novel-card-info">
-            <div class="novel-card-title">${book.title}</div>
-            <div class="novel-card-orig">${book.originalTitle}</div>
-            <div class="tag-container">
-              ${book.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
-            </div>
-            <div class="novel-card-synopsis">${book.synopsis}</div>
-            <div class="novel-card-footer">
-              <span>สถานะ: ${book.status}</span>
-              <span>${book.chapterCount > 0 ? book.chapterCount + ' ตอน' : 'เร็วๆ นี้'} →</span>
-            </div>
-          </div>
-        </div>
-      `).join('');
+  // ===================== preferences =====================
+  function applyPrefs() {
+    const r = document.documentElement;
+    if (prefs.theme) r.setAttribute('data-theme', prefs.theme); else r.removeAttribute('data-theme');
+    r.style.setProperty('--fs', prefs.fs + 'px');
+    r.style.setProperty('--font-read', FONTS[prefs.font] || FONTS.sarabun);
+    r.style.setProperty('--lh', prefs.lh);
+    r.style.setProperty('--measure', prefs.width);
+    $('#fsOut').textContent = prefs.fs + 'px';
+    const effTheme = prefs.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'sepia');
+    for (const [seg, val] of [['#themeSeg', effTheme], ['#fontSeg', prefs.font], ['#lhSeg', prefs.lh], ['#widthSeg', prefs.width]])
+      document.querySelectorAll(seg + ' button').forEach(b => b.classList.toggle('on', b.dataset.v === val));
+    document.querySelector('meta[name=theme-color]').content = getComputedStyle(r).getPropertyValue('--bg').trim();
+    for (const k of Object.keys(prefs)) store.set(k, prefs[k]);
+  }
+  function bindSeg(id, key) {
+    $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; prefs[key] = b.dataset.v; applyPrefs(); });
+  }
+  bindSeg('#themeSeg', 'theme'); bindSeg('#fontSeg', 'font'); bindSeg('#lhSeg', 'lh'); bindSeg('#widthSeg', 'width');
+  document.querySelectorAll('[data-fs]').forEach(b => b.addEventListener('click', () => {
+    prefs.fs = Math.min(30, Math.max(14, prefs.fs + +b.dataset.fs)); applyPrefs();
+  }));
+
+  // ===================== sheets =====================
+  function openSheet(id) { $('#scrim').classList.add('open'); $(id).classList.add('open'); }
+  function closeSheets() { $('#scrim').classList.remove('open'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open')); }
+  $('#scrim').addEventListener('click', closeSheets);
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeSheets));
+  $('#settingsBtn').addEventListener('click', () => openSheet('#settingsSheet'));
+  $('#dockSettingsBtn').addEventListener('click', () => openSheet('#settingsSheet'));
+
+  // ===================== data =====================
+  async function loadBooks() {
+    const r = await fetch('books.json'); books = await r.json();
+  }
+  async function loadToc(b) {
+    if (b._toc) return b._toc;
+    const r = await fetch(b.indexPath || b.chaptersPath);
+    const list = await r.json();
+    b._toc = list.map(c => ({ chapter: c.chapter, title: c.title, paragraphs: c.paragraphs }));
+    return b._toc;
+  }
+  async function loadChapter(meta) {
+    if (meta.paragraphs) return meta;
+    const url = `${bookDir(book)}chapters/ch${pad(meta.chapter)}.json`;
+    if (!cache[url]) {
+      cache[url] = fetch(url).then(r => { if (!r.ok) throw new Error(url); return r.json(); });
+      cache[url].catch(() => delete cache[url]);
     }
+    return cache[url];
+  }
 
-    async function openBook(bookId, startChIndex = 0) {
-      currentBook = booksData.find(b => b.id === bookId);
-      if (!currentBook) return;
+  // ===================== router =====================
+  // #/            ชั้นหนังสือ
+  // #/b/<id>      หน้ารายละเอียด
+  // #/r/<id>/<ch> หน้าอ่าน
+  function go(hash) { if (location.hash !== hash) location.hash = hash; else route(); }
+  window.addEventListener('hashchange', route);
 
-      if (currentBook.chapterCount === 0) {
-        alert("เรื่องนี้อยู่ระหว่างจัดเตรียมข้อมูล จะเริ่มแปลเร็วๆ นี้ครับ!");
-        return;
-      }
-
-      try {
-        const res = await fetch(currentBook.chaptersPath);
-        chaptersData = await res.json();
-        
-        document.getElementById('shelfView').style.display = 'none';
-        document.getElementById('readerView').style.display = 'block';
-        document.getElementById('btnShelf').style.display = 'flex';
-        document.getElementById('btnChapters').style.display = 'flex';
-        document.getElementById('topBookTitle').textContent = currentBook.title;
-
-        renderChapter(startChIndex >= 0 && startChIndex < chaptersData.length ? startChIndex : 0);
-      } catch (err) {
-        console.error("Failed to load chapters:", err);
-      }
+  async function route() {
+    closeSheets();
+    const [, kind, id, ch] = location.hash.split('/');
+    try {
+      if (kind === 'b' && id) return await showDetail(id);
+      if (kind === 'r' && id) return await showReader(id, parseInt(ch, 10));
+      showShelf();
+    } catch (e) {
+      console.error(e); toast('โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชอีกครั้ง'); showShelf();
     }
+  }
+  function setView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+    $('#readProgress').hidden = id !== 'reader';
+    $('#topbar').classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+  function setTop(title, back) {
+    const t = $('#topTitle'); t.replaceChildren();
+    if (title) t.textContent = title;
+    else t.append(el('span', { class: 'brand' }, "Pika's ", el('b', { text: 'Bookshelf' })));
+    $('#backBtn').hidden = !back;
+    $('#backBtn').onclick = back || null;
+    document.title = title ? `${title} · Pika's Bookshelf` : "Pika's Bookshelf";
+  }
 
-    function showShelf() {
-      document.getElementById('shelfView').style.display = 'block';
-      document.getElementById('readerView').style.display = 'none';
-      document.getElementById('btnShelf').style.display = 'none';
-      document.getElementById('btnChapters').style.display = 'none';
-      document.getElementById('topBookTitle').textContent = "Pika's Bookshelf";
-      window.history.replaceState(null, '', window.location.pathname);
+  // ===================== shelf =====================
+  function showShelf() {
+    setView('shelf'); setTop(null, null);
+    const slot = $('#continueSlot'); slot.replaceChildren();
+    const recent = Object.entries(progress).filter(([id]) => books.some(b => b.id === id)).sort((a, b) => b[1].at - a[1].at)[0];
+    if (recent) {
+      const b = books.find(x => x.id === recent[0]);
+      slot.append(el('button', { class: 'continue', onclick: () => go(`#/r/${b.id}/${recent[1].ch}`) },
+        el('img', { src: b.cover, alt: '' }),
+        el('div', { class: 'meta' },
+          el('div', { class: 'eyebrow', text: 'อ่านต่อจากครั้งก่อน' }),
+          el('div', { class: 't', text: b.title }),
+          el('div', { class: 's', text: `ตอนที่ ${recent[1].ch} จาก ${b.chapterCount}` })),
+        el('span', { class: 'pill-btn' }, icon('i-play'), 'อ่านต่อ')));
     }
+    $('#grid').replaceChildren(...books.map(b => {
+      const p = progress[b.id];
+      const pct = p ? Math.min(100, (p.ch / Math.max(1, b.chapterCount)) * 100) : 0;
+      return el('button', { class: 'book', onclick: () => go('#/b/' + b.id) },
+        el('div', { class: 'cover' },
+          el('img', { src: b.cover, alt: '', loading: 'lazy' }),
+          el('span', { class: 'badge', text: `${b.chapterCount} ตอน` })),
+        p ? el('div', { class: 'progress' }, el('i', { style: `width:${pct}%` })) : null,
+        el('div', { class: 't', text: b.title }),
+        el('div', { class: 's', text: p ? `อ่านถึงตอน ${p.ch}` : (b.tags || []).slice(0, 2).join(' · ') }));
+    }));
+  }
 
-    function renderChapter(index) {
-      currentChapterIndex = index;
-      const ch = chaptersData[index];
-      
-      document.getElementById('chapterTitle').textContent = ch.title;
-      document.getElementById('chapterMeta').textContent = `${currentBook.title} • ตอนที่ ${ch.chapter}`;
-      
-      const contentEl = document.getElementById('novelContent');
-      contentEl.innerHTML = ch.paragraphs.map(p => {
-        if (p.includes('<div class="divider">')) return p;
-        return `<p>${p}</p>`;
-      }).join('');
+  // ===================== detail =====================
+  async function showDetail(id) {
+    book = books.find(b => b.id === id); if (!book) return showShelf();
+    toc = await loadToc(book);
+    setView('detail'); setTop(book.title, () => go('#/'));
+    $('#dCover').src = book.cover;
+    $('#dTitle').textContent = book.title;
+    $('#dOrig').textContent = book.originalTitle || '';
+    $('#dStats').replaceChildren(...[
+      el('span', { text: `${toc.length} ตอน` }),
+      book.author ? el('span', { text: `ผู้แต่ง ${book.author}` }) : null,
+      book.status ? el('span', { text: book.status }) : null].filter(Boolean));
+    $('#dTags').replaceChildren(...(book.tags || []).map(t => el('span', { class: 'tag', text: t })));
+    const p = progress[book.id];
+    const first = toc[0]?.chapter ?? 1;
+    $('#dActions').replaceChildren(...[
+      p ? el('button', { class: 'pill-btn', onclick: () => go(`#/r/${book.id}/${p.ch}`) }, icon('i-play'), `อ่านต่อ ตอนที่ ${p.ch}`)
+        : el('button', { class: 'pill-btn', onclick: () => go(`#/r/${book.id}/${first}`) }, icon('i-play'), 'เริ่มอ่านตอนแรก'),
+      p ? el('button', { class: 'pill-btn ghost', onclick: () => go(`#/r/${book.id}/${first}`) }, 'เริ่มใหม่') : null].filter(Boolean));
+    const syn = $('#dSyn'); syn.textContent = book.synopsis || ''; syn.classList.add('clamp');
+    $('#dMore').hidden = false;
+    $('#dMore').onclick = () => { syn.classList.remove('clamp'); $('#dMore').hidden = true; };
+    $('#tocSearch').value = '';
+    renderToc($('#dToc'), '');
+  }
+  function renderToc(ul, q) {
+    const read = new Set(readSet[book.id] || []);
+    const cur = progress[book.id]?.ch;
+    let list = toc;
+    if (q) { const s = q.trim().toLowerCase(); list = toc.filter(c => String(c.chapter) === s || c.title.toLowerCase().includes(s)); }
+    if (sortDesc && ul.id === 'dToc') list = [...list].reverse();
+    if (!list.length) { ul.replaceChildren(el('li', { class: 'empty', text: 'ไม่พบตอนที่ค้นหา' })); return; }
+    ul.replaceChildren(...list.map(c => el('li', { class: c.chapter === cur ? 'current' : read.has(c.chapter) ? 'read' : '' },
+      el('button', { onclick: () => go(`#/r/${book.id}/${c.chapter}`) },
+        el('span', { class: 'num', text: c.chapter }),
+        el('span', { class: 'name', text: chLabel(c.title) }),
+        c.chapter === cur ? el('span', { class: 'dot', title: 'กำลังอ่าน' }) : null))));
+  }
+  $('#tocSearch').addEventListener('input', e => renderToc($('#dToc'), e.target.value));
+  $('#sortBtn').addEventListener('click', () => { sortDesc = !sortDesc; renderToc($('#dToc'), $('#tocSearch').value); toast(sortDesc ? 'เรียงจากตอนล่าสุด' : 'เรียงจากตอนแรก'); });
 
-      document.getElementById('prevBtn').disabled = index === 0;
-      document.getElementById('nextBtn').disabled = index === chaptersData.length - 1;
+  // ===================== reader =====================
+  async function showReader(id, chNum) {
+    book = books.find(b => b.id === id); if (!book) return showShelf();
+    toc = await loadToc(book);
+    let i = toc.findIndex(c => c.chapter === chNum);
+    if (i < 0) i = Math.max(0, toc.findIndex(c => c.chapter === progress[id]?.ch));
+    chIdx = i;
+    const meta = toc[i];
+    setView('reader'); setTop(book.title, () => go('#/b/' + book.id));
+    $('#rKicker').textContent = `ตอนที่ ${meta.chapter} / ${toc.length}`;
+    $('#rTitle').textContent = chLabel(meta.title);
+    $('#rBody').replaceChildren(el('div', { class: 'skeleton' }, ...Array.from({ length: 8 }, () => el('p'))));
+    $('#rEnd').replaceChildren();
+    $('#prevBtn').disabled = i === 0; $('#nextBtn').disabled = i === toc.length - 1;
 
-      renderChapterList();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    const ch = await loadChapter(meta);
+    if (chIdx !== i || !location.hash.startsWith(`#/r/${id}/`)) return; // ผู้ใช้เปลี่ยนหน้าระหว่างโหลด
+    $('#rBody').replaceChildren(...ch.paragraphs.map(p => p.trim() === '* * *'
+      ? el('div', { class: 'divider', text: '✦ ✦ ✦', 'aria-hidden': 'true' })
+      : el('p', { text: p })));
+    renderEnd(i);
+    if (toc[i + 1]) loadChapter(toc[i + 1]).catch(() => {});
 
-      // Update URL without reload
-      const newUrl = `${window.location.pathname}?book=${currentBook.id}&ch=${ch.chapter}`;
-      window.history.replaceState(null, '', newUrl);
+    const saved = progress[id];
+    if (saved && saved.ch === meta.chapter && saved.pct > 0.02 && saved.pct < 0.98) {
+      requestAnimationFrame(() => { window.scrollTo(0, saved.pct * (document.documentElement.scrollHeight - innerHeight)); toast('กลับมาที่เดิมที่อ่านค้างไว้'); });
     }
+    saveProgress(meta.chapter, saved?.ch === meta.chapter ? saved.pct : 0);
+  }
+  function renderEnd(i) {
+    const next = toc[i + 1];
+    $('#rEnd').replaceChildren(next
+      ? el('button', { class: 'next-card', onclick: () => go(`#/r/${book.id}/${next.chapter}`) },
+          el('div', { class: 'meta' }, el('div', { class: 'eyebrow', text: `ตอนถัดไป · ตอนที่ ${next.chapter}` }), el('div', { class: 't', text: chLabel(next.title) })),
+          icon('i-next'))
+      : el('div', { class: 'end-note', text: `อ่านทันตอนล่าสุดแล้ว (${toc.length} ตอน) · ตอนใหม่กำลังแปลอยู่นะครับ` }));
+  }
+  const step = (d) => { const c = toc[chIdx + d]; if (c) go(`#/r/${book.id}/${c.chapter}`); };
+  $('#prevBtn').addEventListener('click', () => step(-1));
+  $('#nextBtn').addEventListener('click', () => step(1));
+  $('#tocBtn').addEventListener('click', () => {
+    $('#tocSheetTitle').textContent = book.title;
+    renderToc($('#sheetToc'), '');
+    openSheet('#tocSheet');
+    requestAnimationFrame(() => $('#sheetToc .current')?.scrollIntoView({ block: 'center' }));
+  });
+  document.addEventListener('keydown', e => {
+    if (!$('#reader').classList.contains('active') || e.target.matches('input')) return;
+    if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); else if (e.key === 'Escape') closeSheets();
+  });
 
-    function renderChapterList() {
-      const listEl = document.getElementById('chapterList');
-      listEl.innerHTML = chaptersData.map((ch, idx) => `
-        <li class="chapter-item ${idx === currentChapterIndex ? 'active' : ''}" onclick="selectChapter(${idx})">
-          <span>${ch.title}</span>
-          <span>${idx === currentChapterIndex ? '✓' : ''}</span>
-        </li>
-      `).join('');
+  // แตะกลางจอ = ซ่อน/แสดงแถบควบคุม
+  $('#rBody').addEventListener('click', () => { if (getSelection().toString()) return; const h = !$('#dock').classList.contains('hidden'); $('#dock').classList.toggle('hidden', h); $('#topbar').classList.toggle('hidden', h); });
+
+  // scroll: แถบซ่อนเมื่อเลื่อนลง แสดงเมื่อเลื่อนขึ้น + บันทึกตำแหน่ง
+  let lastY = 0, saveT;
+  addEventListener('scroll', () => {
+    const y = scrollY, reading = $('#reader').classList.contains('active');
+    $('#topbar').classList.toggle('scrolled', y > 4);
+    if (!reading) return;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const pct = max > 0 ? Math.min(1, y / max) : 1;
+    $('#readProgress').style.width = (pct * 100) + '%';
+    const down = y > lastY + 6, up = y < lastY - 6;
+    if (down && y > 120) { $('#topbar').classList.add('hidden'); $('#dock').classList.add('hidden'); }
+    if (up || pct > 0.97) { $('#topbar').classList.remove('hidden'); $('#dock').classList.remove('hidden'); }
+    lastY = y;
+    clearTimeout(saveT);
+    saveT = setTimeout(() => {
+      const c = toc[chIdx]; if (!c) return;
+      saveProgress(c.chapter, pct);
+      if (pct > 0.9) markRead(c.chapter);
+    }, 300);
+  }, { passive: true });
+
+  // ===================== boot =====================
+  (async function init() {
+    applyPrefs();
+    matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyPrefs);
+    try { await loadBooks(); } catch (e) { $('#grid').replaceChildren(el('p', { class: 'empty', text: 'โหลดรายชื่อหนังสือไม่สำเร็จ' })); }
+    // รองรับลิงก์แบบเก่า ?book=dragon&ch=5
+    const q = new URLSearchParams(location.search);
+    if (q.get('book')) {
+      history.replaceState(null, '', location.pathname + `#/r/${q.get('book')}/${q.get('ch') || ''}`);
     }
-
-    function selectChapter(idx) {
-      renderChapter(idx);
-      closeAllDrawers();
-    }
-
-    function prevChapter() {
-      if (currentChapterIndex > 0) renderChapter(currentChapterIndex - 1);
-    }
-
-    function nextChapter() {
-      if (currentChapterIndex < chaptersData.length - 1) renderChapter(currentChapterIndex + 1);
-    }
-
-    function openDrawer(id) {
-      document.getElementById('overlay').classList.add('active');
-      document.getElementById(id).classList.add('active');
-    }
-
-    function closeAllDrawers() {
-      document.getElementById('overlay').classList.remove('active');
-      document.querySelectorAll('.drawer').forEach(d => d.classList.remove('active'));
-    }
-
-    function setTheme(theme) {
-      if (theme === 'light') {
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', theme);
-      }
-      
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('onclick').includes(theme));
-      });
-      localStorage.setItem('novel_theme', theme);
-    }
-
-    function changeFontSize(delta) {
-      currentFontSize = Math.min(Math.max(14, currentFontSize + delta), 28);
-      document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
-      document.getElementById('fontSizeDisplay').textContent = currentFontSize + 'px';
-      localStorage.setItem('novel_font_size', currentFontSize);
-    }
-
-    window.addEventListener('DOMContentLoaded', init);
+    route();
+  })();
   </script>
 </body>
 </html>
