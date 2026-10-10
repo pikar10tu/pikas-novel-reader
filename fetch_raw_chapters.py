@@ -8,7 +8,7 @@ os.makedirs('raw_chapters', exist_ok=True)
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
-for ch in range(101, 121):
+for ch in range(121, 141):
     file_path = f'raw_chapters/v1c{ch}.json'
     if os.path.exists(file_path):
         continue
