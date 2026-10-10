@@ -1,0 +1,74 @@
+# ตัวอย่างสำนวน dragon — อ่านก่อนแปล/เกลาทุกครั้ง
+
+คัดจากตอน 1-100 ซึ่งเป็นระดับสำนวนที่ต้องการ (audit 2026-10-11) สังเกตว่า**ไม่ได้แปลทีละคำ** แต่เติมน้ำเสียง จังหวะ และคำลงท้ายแบบไทย โดยไม่เติมเหตุการณ์ใหม่
+
+## ✅ ตัวอย่างที่ดี
+
+**Ch 35**
+
+> EN: It couldn't be that this dragon mother told the children, right?
+
+> TH: คงไม่ใช่ว่ายัยแม่มังกรตัวดีไปเล่าเรื่องบัดสีเมื่อคืนให้ลูกๆ ฟังหรอกนะ?!
+
+**Ch 35**
+
+> EN: Hey, have you lost your mind? How can you talk to a child about such things? Can't a dad have some dignity? He thought.
+
+> TH: 'นี่เจ้าเสียสติไปแล้วเรอะ! ไปเล่าเรื่องพรรค์นั้นให้เด็กไร้เดียงสาฟังได้ยังไงกัน?! ศักดิ์ศรีความเป็นพ่อของข้าไม่ป่นปี้หมดแล้วเรอะ!' เขาคิดในใจอย่างตื่นตระหนก
+
+**Ch 35**
+
+> EN: Muen pinched Leon's sleeve, her voice slightly teary, "Muen knows, Dad, men can't admit they're sick, but your face looks even worse now. Muen is really worried about you."
+
+> TH: มูนเอื้อมมือไปดึงแขนเสื้อของลีออน น้ำเสียงเริ่มสั่นเครือคล้ายจะร้องไห้ "มูนรู้นะคะว่าปะป๊าเป็นผู้ชาย ผู้ชายห้ามยอมรับว่าตัวเองป่วย แต่ตอนนี้หน้าตาปะป๊าดูแย่กว่าเมื่อวานตั้งเยอะ มูนเป็นห่วงปะป๊าจริงๆ นะคะ ฮึก..."
+
+**Ch 45**
+
+> EN: Rosvitha helplessly supported her forehead. "I wasn't asking about whether it's easy to deal with or not... I'm talking about the assessment later. Will they give us some difficult questions, OK?"
+
+> TH: รอสวิธายกมือกุมขมับด้วยความจนปัญญาอย่างถึงที่สุด "ข้าไม่ได้ถามเรื่องการสู้รบฟันคอใครย่ะ! ข้าหมายถึงการสอบประเมินหลังจากนี้ต่างหาก! คิดว่าพวกเขาจะออกข้อสอบยากไหมเล่า?!"
+
+**Ch 75**
+
+> EN: The small whip landed on Leon's chest with a snap, quick enough that he couldn't react in time. Though the sound was somewhat loud, both of them knew it wasn't delivered with much force. After all, they weren't playing the real alphabet game.
+
+> TH: แส้หนังเส้นสั้นฟาดลงบนแผงอกของลีออนอย่างรวดเร็ว เสียงแส้ดังสนั่นจนเขาตั้งตัวไม่ทัน แม้เสียงจะฟังดูน่ากลัว ทว่าทั้งสองต่างรู้ดีว่านางไม่ได้ลงแรงอะไรมากมายนัก ท้ายที่สุดแล้ว พวกเขาก็ไม่ได้กำลังเล่นเกมล่ามโซ่ทรมานอย่างจริงจังเสียหน่อย
+
+**Ch 85**
+
+> EN: "Absolutely thrilled, my dear wife!" Leon exclaimed.
+
+> TH: "ยินดีรับใช้ด้วยความเต็มใจยิ่งเลยจ้ะภรรยาจ๋า!" ลีออนขานรับเสียงดังฟังชัด
+
+**Ch 85**
+
+> EN: Leon breathed a sigh of relief. "Thank goodness, the revolution's gains are preserved."
+
+> TH: ลีออนลอบถอนหายใจยาวด้วยความโล่งอกอย่างมหาศาล "ขอบคุณสวรรค์ ผลประโยชน์แห่งการปฏิวัติยังคงได้รับการพิทักษ์รักษาไว้ได้อย่างปลอดภัย!"
+
+**Ch 25**
+
+> EN: Leon's buttock rested against the cold stone wall, and despite his heavy eyelids, he still responded to Rosvitha's gaze.
+
+> TH: ลีออนนั่งพิงกำแพงหินเย็นเยียบ แม้เปลือกตาจะหนักอึ้ง แต่เขาก็ยังคงสบตากับรอสวิธา
+
+**Ch 95**
+
+> EN: Who said there's no such thing as empathy in the world? She now understood the pain Leon felt during breakfast.
+
+> TH: ใครบอกกันเล่าว่าในโลกนี้ไม่มีความเห็นอกเห็นใจซึ่งกันและกัน? ตอนนี้นางเข้าใจความทรมานที่ลีออนต้องเผชิญเมื่อตอนมื้อเช้าได้อย่างแจ่มแจ้งทะลุปรุโปร่งแล้ว
+
+## ❌ ตัวอย่างที่ไม่ผ่าน (Ch 118 ฉบับแรก) → ✅ แนวแก้
+
+| ต้นฉบับ | ❌ ฉบับแปลตรงตัว | ✅ แนวแก้ |
+|---|---|---|
+| Muen's taste buds, along with the part of her brain responsible for jealousy, were instantly conquered by the delicious aroma of the chicken leg. | ต่อมรับรสของมูน พร้อมกับส่วนของสมองที่รับผิดชอบเรื่องความหึงหวง ถูกพิชิตด้วยกลิ่นหอมอร่อยของน่องไก่ในทันที | กลิ่นหอมของน่องไก่สยบทั้งต่อมรับรสและต่อมหึงของมูนได้ในพริบตา |
+| In prison, you had to sew, but being captured only required washing dishes. | ในคุก คุณต้องเย็บผ้า แต่การถูกจับเป็นเชลยนั้นต้องล้างจานเท่านั้น | ติดคุกยังต้องนั่งเย็บผ้า แต่เป็นเชลยมังกรแค่ล้างจาน |
+| Rosvitha glanced at him. "Idiot, get back to work." | รอสวิธาเหลือบมองเขา "คนโง่ กลับไปทำงานซะ" | รอสวิธาปรายตามองเขา "เจ้าทึ่ม ล้างจานต่อไปเลย" |
+| Noia quietly retrieved her small wooden box... Noia felt a sense of emotion. | โนอาก็รู้สึกสะเทือนใจ ดูเหมือนเธอจะไม่ได้ใส่อะไรลงไปในนั้นมานานแล้ว | โนอาใจหวิวขึ้นมาเล็กน้อย ดูเหมือนแกจะไม่ได้หยิบอะไรใส่ลงไปนานแล้ว |
+
+## เช็กลิสต์ก่อนส่งแต่ละย่อหน้า
+- บทบรรยายมีคำว่า "เธอ" หรือไม่ → เปลี่ยนเป็น นาง / แก / ชื่อ หรือละไป
+- มี "ถูก…", "อย่างไรก็ตาม", "ในขณะเดียวกัน", "ได้รับการ" ที่ตัดได้ไหม
+- ถ้าอ่านออกเสียงแล้วฟังเหมือนซับไตเติลแปลกูเกิล ให้เรียบเรียงใหม่
+- ชื่อ ศัพท์ และคำเรียกพ่อ/แม่ ตรงกับ GLOSSARY ไหม

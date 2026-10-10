@@ -17,6 +17,12 @@ ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'En
 RAW_DIRS = {'dragon': 'raw_chapters/v1c{n}.json'}   # เพิ่มเรื่องอื่นได้ เช่น 'ccg': 'novels/cultivation-chat-group/raw/ch{n}.json'
 MIN_RATIO = 0.65     # ความยาวไทย/อังกฤษ ต่ำกว่านี้ = สงสัยตกหล่น (ไทยปกติ ~0.75-1.1)
 MAX_PARA = 600       # ตัวอักษรต่อย่อหน้า
+TERU_MAX = 10        # 'เธอ' ต่อหมื่นตัวอักษร เกินนี้ = สำนวนแปลตรงตัว (ตอน 81-100 อยู่ที่ ~0.5, ตอน 101-140 พุ่งไป ~30)
+STIFF = ['อย่างไรก็ตาม', 'ในขณะเดียวกัน', 'ได้รับการ', 'อันหรูหรา']   # คำเชื่อมสำนวนแปล
+# ใครห้ามเรียกพ่อด้วยคำไหน: {เรื่อง: [(ชื่อลูก, คำต้องห้าม, คำที่ถูก)]}
+# ย่อหน้าที่ตรวจด้วยตาแล้วว่าถูก (บทบรรยาย / ลีออนคุยกับมูน) {เรื่อง: {(ตอน, ย่อหน้า 1-based)}}
+FATHER_OK = {'dragon': {(18, 32), (23, 51), (119, 14), (132, 38), (136, 24), (137, 11)}}
+FATHER = {'dragon': [('โนอา', 'ปะป๊า', 'ท่านพ่อ'), ('มูน', 'ท่านพ่อ', 'ปะป๊า')]}
 
 def load_banned(novel_dir):
     """อ่านตาราง 'ห้ามใช้' ใน GLOSSARY.md: | ❌ คำผิด | ✅ คำถูก | ..."""
@@ -86,11 +92,35 @@ def main():
             long = [i + 1 for i, p in enumerate(ch['paragraphs']) if len(p) > MAX_PARA]
             if long:
                 issues.append(('WARN', f'ย่อหน้ายาวเกิน {MAX_PARA} ตัวอักษร: ย่อหน้าที่ {long[:5]}'))
+            L = max(1, len(text)) / 10000
+            teru = text.count('เธอ') / L
+            if teru > TERU_MAX:
+                issues.append(('WARN', f"สำนวนแปลตรงตัว: 'เธอ' {teru:.0f} ครั้ง/หมื่นตัวอักษร (เกณฑ์ {TERU_MAX}) — บทบรรยายใช้ นาง/แก/ชื่อ"))
+            stiff = {w: text.count(w) for w in STIFF if text.count(w) >= 3}
+            if stiff:
+                issues.append(('WARN', f'คำเชื่อมสำนวนแปลหนาแน่น {stiff}'))
+            fw = re.findall(r'[！？，。：；（）]', text)
+            if fw:
+                issues.append(('ERROR', f'เครื่องหมายแบบตัวเต็ม (จีน) ค้าง x{len(fw)}'))
+            if '“' in text or '”' in text:
+                issues.append(('WARN', 'ใช้เครื่องหมายคำพูดโค้ง “ ” — ให้ใช้ " ตรงตามตอนอื่น'))
+            for i, p in enumerate(ch['paragraphs']):
+                for kid, bad, good in FATHER.get(b['id'], []):
+                    others = [k for k, _, _ in FATHER[b['id']] if k != kid]
+                    if (n, i + 1) in FATHER_OK.get(b['id'], set()):
+                        continue
+                    if kid in p and bad in p and not any(o in p for o in others):
+                        issues.append(('WARN', f"ย่อหน้า {i + 1}: {kid} คู่กับ '{bad}' — ถ้า{kid}เป็นคนพูด ต้องใช้ '{good}'"))
             if any(not p.strip() for p in ch['paragraphs']):
                 issues.append(('WARN', 'มีย่อหน้าว่าง'))
             rp = raw_paras(b['id'], n)
             if rp:
                 ratio = sum(map(len, ch['paragraphs'])) / max(1, sum(map(len, rp)))
+                np_th, np_raw = len(re.findall(r'\(', text)), len(re.findall(r'\(', ' '.join(rp)))
+                if np_th > np_raw:
+                    issues.append(('WARN', f'วงเล็บมากกว่าต้นฉบับ ({np_th} > {np_raw}) — ห้ามเติมคำอธิบาย/ความเห็นผู้แปลในวงเล็บ'))
+                if re.search(r'[￣︿◕ᴗ✿]', text):
+                    issues.append(('WARN', 'มีอีโมจิตัวอักษร (kaomoji) — ตัดออกหรือบรรยายเป็นคำ'))
                 if ratio < MIN_RATIO:
                     issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/อังกฤษ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
             a = agg.get(n)
