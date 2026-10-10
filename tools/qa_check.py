@@ -37,6 +37,21 @@ def load_banned(novel_dir):
                 banned[bad.strip()] = m.group(2).strip()
     return banned
 
+def _bigrams(s):
+    return {s[i:i + 2] for i in range(len(s) - 1)}
+
+def dup_blocks(P, thr=0.35):
+    """หาก้อนย่อหน้าที่ซ้ำ: มี >=3 คู่ที่ห่างกันเท่ากัน (d) และคล้ายกันเกิน thr
+    = อาการเกลาแล้วเขียนทับไม่หมด ทำให้ย่อหน้าเก่าค้างต่อท้าย (เคยเกิดใน Ch 107)"""
+    B = [_bigrams(p) for p in P]
+    found = {}
+    for i in range(len(P)):
+        for d in range(1, 21):
+            j = i + d
+            if j < len(P) and len(P[i]) > 30 and len(B[i] & B[j]) / max(1, len(B[i] | B[j])) > thr:
+                found.setdefault(d, []).append(i + 1)
+    return {d: v for d, v in found.items() if len(v) >= 3}
+
 def raw_paras(book_id, n):
     pat = RAW_DIRS.get(book_id)
     if not pat:
@@ -111,6 +126,8 @@ def main():
                         continue
                     if kid in p and bad in p and not any(o in p for o in others):
                         issues.append(('WARN', f"ย่อหน้า {i + 1}: {kid} คู่กับ '{bad}' — ถ้า{kid}เป็นคนพูด ต้องใช้ '{good}'"))
+            for d, idx in dup_blocks(ch['paragraphs']).items():
+                issues.append(('ERROR', f'ย่อหน้าซ้ำเป็นก้อน (ห่างกัน {d}) ที่ย่อหน้า {idx[:6]} — น่าจะเหลือย่อหน้าฉบับเก่าค้าง หรือตัดต่อพลาด'))
             if any(not p.strip() for p in ch['paragraphs']):
                 issues.append(('WARN', 'มีย่อหน้าว่าง'))
             rp = raw_paras(b['id'], n)
@@ -121,6 +138,9 @@ def main():
                     issues.append(('WARN', f'วงเล็บมากกว่าต้นฉบับ ({np_th} > {np_raw}) — ห้ามเติมคำอธิบาย/ความเห็นผู้แปลในวงเล็บ'))
                 if re.search(r'[￣︿◕ᴗ✿]', text):
                     issues.append(('WARN', 'มีอีโมจิตัวอักษร (kaomoji) — ตัดออกหรือบรรยายเป็นคำ'))
+                diff = len(ch['paragraphs']) - len(rp)
+                if diff < -5:   # ย่อหน้าน้อยกว่าต้นฉบับมาก = อาจตกหล่น (มากกว่าไม่เป็นไร ตอนต้นๆ แตกย่อหน้าเยอะ)
+                    issues.append(('WARN', f'จำนวนย่อหน้าต่างจากต้นฉบับ {diff:+d} ({len(ch["paragraphs"])}/{len(rp)}) — เช็กว่าตกหล่นหรือซ้ำ'))
                 if ratio < MIN_RATIO:
                     issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/อังกฤษ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
             a = agg.get(n)
