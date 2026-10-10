@@ -14,6 +14,7 @@ os.chdir(ROOT)
 
 # คำอังกฤษที่อนุญาตให้อยู่ในเนื้อหาได้ (ระดับ/ศัพท์เกมที่คนไทยใช้ทับตรงๆ)
 ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'Enter', 'HP', 'MP', 'VIP'}
+STRICT_FROM = {'dragon': 101}   # ตั้งแต่ตอนนี้ต้องตรงต้นฉบับ 1:1 (ตอนต้นๆ แตกย่อหน้าต่างจากต้นฉบับ)
 RAW_DIRS = {'dragon': 'raw_chapters/v1c{n}.json'}   # เพิ่มเรื่องอื่นได้ เช่น 'ccg': 'novels/cultivation-chat-group/raw/ch{n}.json'
 MIN_RATIO = 0.65     # ความยาวไทย/อังกฤษ ต่ำกว่านี้ = สงสัยตกหล่น (ไทยปกติ ~0.75-1.1)
 MAX_PARA = 600       # ตัวอักษรต่อย่อหน้า
@@ -61,6 +62,21 @@ def raw_paras(book_id, n):
         return None
     r = json.load(open(p, encoding='utf-8'))
     return r['paragraphs'] if isinstance(r, dict) else r
+
+def body_paras(th, raw):
+    """ตัดบรรทัดชื่อตอนออกทั้งสองฝั่งก่อนเทียบย่อหน้า 1:1"""
+    if th and th[0].startswith('ตอนที่'):
+        th = th[1:]
+    if raw and re.search(r'chapter\s*\d', raw[0], re.I):
+        raw = raw[1:]
+    return th, raw
+
+def first_drift(th, raw):
+    """ย่อหน้าแรกที่ความยาวไทย/อังกฤษผิดสัดส่วน = จุดที่น่าจะเริ่มเลื่อน"""
+    for i, (t, e) in enumerate(zip(th, raw)):
+        if len(e) > 60 and not 0.4 < len(t) / len(e) < 2.0:
+            return i + 1
+    return None
 
 def parse_range(s):
     a, _, b = s.partition('-')
@@ -139,7 +155,13 @@ def main():
                 if re.search(r'[￣︿◕ᴗ✿]', text):
                     issues.append(('WARN', 'มีอีโมจิตัวอักษร (kaomoji) — ตัดออกหรือบรรยายเป็นคำ'))
                 diff = len(ch['paragraphs']) - len(rp)
-                if diff < -5:   # ย่อหน้าน้อยกว่าต้นฉบับมาก = อาจตกหล่น (มากกว่าไม่เป็นไร ตอนต้นๆ แตกย่อหน้าเยอะ)
+                if n >= STRICT_FROM.get(b['id'], 10**9):
+                    th_b, raw_b = body_paras(ch['paragraphs'], rp)
+                    if len(th_b) != len(raw_b):
+                        hint = first_drift(th_b, raw_b)
+                        issues.append(('ERROR', f'ย่อหน้าไม่ตรงต้นฉบับ 1:1 (ไทย {len(th_b)} / ต้นฉบับ {len(raw_b)} ไม่นับชื่อตอน)'
+                                       + (f' เริ่มเพี้ยนราวย่อหน้าที่ {hint}' if hint else '') + ' — ตกหล่น ซ้ำ หรือแต่งเพิ่ม'))
+                elif diff < -5:   # ย่อหน้าน้อยกว่าต้นฉบับมาก = อาจตกหล่น (มากกว่าไม่เป็นไร ตอนต้นๆ แตกย่อหน้าเยอะ)
                     issues.append(('WARN', f'จำนวนย่อหน้าต่างจากต้นฉบับ {diff:+d} ({len(ch["paragraphs"])}/{len(rp)}) — เช็กว่าตกหล่นหรือซ้ำ'))
                 if ratio < MIN_RATIO:
                     issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/อังกฤษ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
