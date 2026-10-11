@@ -566,8 +566,11 @@
   $('#sortBtn').addEventListener('click', () => { sortDesc = !sortDesc; renderToc($('#dToc'), $('#tocSearch').value); toast(sortDesc ? 'เรียงจากตอนล่าสุด' : 'เรียงจากตอนแรก'); });
 
   // ===================== reader =====================
+  let restoring = false;   // ระหว่างโหลดตอน ห้ามบันทึกตำแหน่ง ไม่งั้น scroll ที่ y=0 ทับตำแหน่งเดิม
   async function showReader(id, chNum) {
     book = books.find(b => b.id === id); if (!book) return showShelf();
+    restoring = true; clearTimeout(saveT);
+    const saved = progress[id] ? { ...progress[id] } : null;
     toc = await loadToc(book);
     let i = toc.findIndex(c => c.chapter === chNum);
     if (i < 0) i = Math.max(0, toc.findIndex(c => c.chapter === progress[id]?.ch));
@@ -588,11 +591,12 @@
     renderEnd(i);
     if (toc[i + 1]) loadChapter(toc[i + 1]).catch(() => {});
 
-    const saved = progress[id];
-    if (saved && saved.ch === meta.chapter && saved.pct > 0.02 && saved.pct < 0.98) {
-      requestAnimationFrame(() => { window.scrollTo(0, saved.pct * (document.documentElement.scrollHeight - innerHeight)); toast('กลับมาที่เดิมที่อ่านค้างไว้'); });
-    }
+    const resume = saved && saved.ch === meta.chapter && saved.pct > 0.02 && saved.pct < 0.98;
     saveProgress(meta.chapter, saved?.ch === meta.chapter ? saved.pct : 0);
+    requestAnimationFrame(() => {
+      if (resume) { window.scrollTo(0, saved.pct * (document.documentElement.scrollHeight - innerHeight)); toast('กลับมาที่เดิมที่อ่านค้างไว้'); }
+      requestAnimationFrame(() => { restoring = false; });
+    });
   }
   function renderEnd(i) {
     const next = toc[i + 1];
@@ -632,6 +636,7 @@
     if (down && y > 120) { $('#topbar').classList.add('hidden'); $('#dock').classList.add('hidden'); }
     if (up || pct > 0.97) { $('#topbar').classList.remove('hidden'); $('#dock').classList.remove('hidden'); }
     lastY = y;
+    if (restoring) return;
     clearTimeout(saveT);
     saveT = setTimeout(() => {
       const c = toc[chIdx]; if (!c) return;
@@ -641,6 +646,7 @@
   }, { passive: true });
 
   // ===================== boot =====================
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   (async function init() {
     applyPrefs();
     matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyPrefs);

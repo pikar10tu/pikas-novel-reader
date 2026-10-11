@@ -67,7 +67,7 @@ def body_paras(th, raw):
     """ตัดบรรทัดชื่อตอนออกทั้งสองฝั่งก่อนเทียบย่อหน้า 1:1"""
     if th and th[0].startswith('ตอนที่'):
         th = th[1:]
-    if raw and re.search(r'chapter\s*\d', raw[0], re.I):
+    if raw and re.search(r'chap(?:ter)?\s*\d', raw[0], re.I):
         raw = raw[1:]
     return th, raw
 
