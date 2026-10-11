@@ -97,5 +97,48 @@ class LoadBanned(unittest.TestCase):
         self.assertEqual(banned.get('เมลค์วี'), 'เมลควิ')
 
 
+class GlossaryParse(unittest.TestCase):
+    def parse(self, md):
+        from tools import glossary
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, 'GLOSSARY.md')
+            with open(p, 'w', encoding='utf-8') as f:
+                f.write(md)
+            return glossary.parse(p)
+
+    CHARS = ('## 2. ตัวละคร\n| ชื่ออังกฤษ | ชื่อไทย | หมายเหตุ |\n|---|---|---|\n'
+             '| Leon | ลีออน | พระเอก |\n| Prince | องค์ชาย | ฐานันดร |\n')
+    BANNED = '## ห้ามใช้\n| ห้ามใช้ | ใช้แทน | เหตุผล |\n|---|---|---|\n'
+
+    def test_approved_terms(self):
+        g = self.parse(self.CHARS)
+        self.assertEqual(g.approved, {'Leon': 'ลีออน', 'Prince': 'องค์ชาย'})
+        self.assertEqual(g.problems, [])
+
+    def test_malformed_banned_row_is_reported(self):
+        # ลืม ✅ = แถวนี้เคยถูกข้ามเงียบๆ
+        g = self.parse(self.BANNED + '| ❌ เจ้าชาย | องค์ชาย | x |\n')
+        self.assertEqual(g.banned, {})
+        self.assertEqual(len(g.problems), 1)
+
+    def test_wrong_column_count(self):
+        g = self.parse(self.CHARS + '| Anna | แอนนา | เมด | เกิน |\n')
+        self.assertTrue(any('ช่อง' in m for _, m in g.problems))
+
+    def test_banned_word_inside_approved_term(self):
+        g = self.parse(self.CHARS.replace('องค์ชาย', 'เจ้าชาย') + self.BANNED + '| ❌ เจ้าชาย | ✅ องค์ชาย | x |\n')
+        self.assertTrue(any('เจ้าชาย' in m for _, m in g.problems))
+
+    def test_conflicting_duplicate(self):
+        g = self.parse(self.CHARS + '| Leon | เลออน | ซ้ำ |\n')
+        self.assertTrue(any('ไม่ตรงกัน' in m for _, m in g.problems))
+
+    def test_real_glossaries_are_clean(self):
+        from tools import glossary
+        import glob
+        for p in glob.glob(os.path.join(qa.ROOT, 'novels', '*', 'GLOSSARY.md')):
+            self.assertEqual(glossary.parse(p).problems, [], p)
+
+
 if __name__ == '__main__':
     unittest.main()

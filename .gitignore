@@ -5,3 +5,6 @@ novels/*/raw/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# ไฟล์รวมทุกตอนแบบเก่า (เลิกใช้ เว็บโหลดไฟล์ตอนแยก)
+novels/*/chapters.json

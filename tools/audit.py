@@ -19,7 +19,7 @@ STIFF = qa.STIFF + ['ค่อนข้าง', 'ตระหนัก', 'ถู
 
 
 def chapter_path(book, n):
-    return os.path.join(os.path.dirname(book['chaptersPath']), 'chapters', f'ch{n:03d}.json')
+    return os.path.join(qa.book_dir(book), 'chapters', f'ch{n:03d}.json')
 
 
 def head_paras(path):
@@ -71,7 +71,7 @@ def main():
     book_id, (a, b) = args[0], qa.parse_range(args[1])
     sample = int(sys.argv[sys.argv.index('--sample') + 1]) if '--sample' in sys.argv else 0
     book = next(x for x in json.load(open('books.json', encoding='utf-8')) if x['id'] == book_id)
-    gp = os.path.join(os.path.dirname(book['chaptersPath']), 'GLOSSARY.md')
+    gp = os.path.join(qa.book_dir(book), 'GLOSSARY.md')
     gloss_lower = open(gp, encoding='utf-8').read().lower() if os.path.exists(gp) else ''
 
     rows = [r for r in (measure(book, n, gloss_lower) for n in range(a, b + 1)) if r]
@@ -98,7 +98,7 @@ def main():
     if sample:
         print('ตัวอย่างต้นฉบับคู่คำแปล:', write_samples(rows, sample))
     if '--log' in sys.argv:
-        log = os.path.join(os.path.dirname(book['chaptersPath']), 'audit_log.csv')
+        log = os.path.join(qa.book_dir(book), 'audit_log.csv')
         new = not os.path.exists(log)
         with open(log, 'a', encoding='utf-8', newline='') as f:
             w = csv.DictWriter(f, fieldnames=list(summary))

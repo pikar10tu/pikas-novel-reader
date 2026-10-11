@@ -12,6 +12,8 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
+sys.path.insert(0, ROOT)
+from tools import glossary   # noqa: E402
 
 # คำอังกฤษที่อนุญาตให้อยู่ในเนื้อหาได้ (ระดับ/ศัพท์เกมที่คนไทยใช้ทับตรงๆ)
 ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'Enter', 'HP', 'MP', 'VIP'}
@@ -55,17 +57,12 @@ FATHER_OK = {'dragon': {(18, 32), (23, 51), (119, 14), (132, 38), (136, 24), (13
 FATHER = {'dragon': [('โนอา', 'ปะป๊า', 'ท่านพ่อ'), ('มูน', 'ท่านพ่อ', 'ปะป๊า')]}
 
 def load_banned(novel_dir):
-    """อ่านตาราง 'ห้ามใช้' ใน GLOSSARY.md: | ❌ คำผิด | ✅ คำถูก | ..."""
-    banned = {}
-    g = os.path.join(novel_dir, 'GLOSSARY.md')
-    if not os.path.exists(g):
-        return banned
-    for line in open(g, encoding='utf-8'):
-        m = re.match(r'\|\s*❌\s*([^|]+?)\s*\|\s*✅\s*([^|]+?)\s*\|', line)
-        if m:
-            for bad in m.group(1).split('/'):
-                banned[bad.strip()] = m.group(2).strip()
-    return banned
+    """ตาราง 'ห้ามใช้' ใน GLOSSARY.md: | ❌ คำผิด | ✅ คำถูก | ... -> {คำผิด: คำถูก}"""
+    return glossary.parse(os.path.join(novel_dir, 'GLOSSARY.md')).banned
+
+def book_dir(b):
+    """โฟลเดอร์ของเรื่อง (books.json: 'dir' — รองรับ 'chaptersPath' แบบเก่า)"""
+    return (b.get('dir') or os.path.dirname(b['chaptersPath'])).rstrip('/')
 
 def _bigrams(s):
     return {s[i:i + 2] for i in range(len(s) - 1)}
@@ -119,13 +116,15 @@ def main():
     for b in books:
         if only and b['id'] != only:
             continue
-        ndir = os.path.dirname(b['chaptersPath'])
-        banned = load_banned(ndir)
-        gp = os.path.join(ndir, 'GLOSSARY.md')
-        gloss_lower = open(gp, encoding='utf-8').read().lower() if os.path.exists(gp) else ''
+        ndir = book_dir(b)
+        g = glossary.parse(os.path.join(ndir, 'GLOSSARY.md'))
+        banned, gloss_lower = g.banned, g.text.lower()
         files = sorted(glob.glob(os.path.join(ndir, 'chapters', 'ch*.json')))
-        agg = {c['chapter']: c for c in json.load(open(b['chaptersPath'], encoding='utf-8'))}
+        ip = os.path.join(ndir, 'index.json')
+        toc = {c['chapter']: c['title'] for c in json.load(open(ip, encoding='utf-8'))} if os.path.exists(ip) else {}
         print(f"\n=== {b['id']} ({len(files)} ตอน, คำต้องห้าม {len(banned)} คำ)")
+        for no, msg in g.problems:
+            print(f"  [ERROR] GLOSSARY.md บรรทัด {no}: {msg}"); errors += 1
         nums = []
         for f in files:
             ch = json.load(open(f, encoding='utf-8'))
@@ -203,9 +202,8 @@ def main():
                         issues.append(('WARN', f'ชื่อเฉพาะในต้นฉบับที่ยังไม่อยู่ใน GLOSSARY: {nn[:8]} — เสนอใน Proposed New Terms'))
                 if ratio < MIN_RATIO:
                     issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/อังกฤษ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
-            a = agg.get(n)
-            if not a or a['paragraphs'] != ch['paragraphs'] or a['title'] != ch['title']:
-                issues.append(('WARN', 'ไม่ตรงกับ chapters.json — รัน python sync_books.py'))
+            if toc.get(n) != ch['title']:
+                issues.append(('WARN', 'สารบัญ index.json ไม่ตรงกับไฟล์ตอน — รัน python sync_books.py'))
             for lvl, msg in issues:
                 print(f"  [{lvl}] ตอน {n}: {msg}")
                 if lvl == 'ERROR': errors += 1

@@ -15,7 +15,7 @@ if echo "$staged" | grep -qE '^(tools/|books\.json)'; then
   ids=$($PY -c "import json;print(' '.join(b['id'] for b in json.load(open('books.json',encoding='utf-8'))))")
 else
   dirs=$(echo "$staged" | sed -n 's#^novels/\([^/]*\)/.*#\1#p' | sort -u)
-  ids=$($PY -c "import json,sys;d=set(sys.argv[1:]);print(' '.join(b['id'] for b in json.load(open('books.json',encoding='utf-8')) if b['chaptersPath'].split('/')[1] in d))" $dirs)
+  ids=$($PY -c "import json,sys;d=set(sys.argv[1:]);print(' '.join(b['id'] for b in json.load(open('books.json',encoding='utf-8')) if b['dir'].split('/')[1] in d))" $dirs)
 fi
 
 fail=0

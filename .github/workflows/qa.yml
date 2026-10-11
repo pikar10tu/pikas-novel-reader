@@ -1,0 +1,34 @@
+# ตรวจทุกครั้งที่ push / เปิด PR — ด่านที่สองถัดจาก pre-commit hook ในเครื่อง
+# หมายเหตุ: raw_chapters/ ไม่อยู่ใน git (ลิขสิทธิ์) ดังนั้นบน CI จะไม่มีการเช็กที่ต้องเทียบต้นฉบับ
+# (ย่อหน้า 1:1, ความยาว, ชื่อใหม่) — เช็กพวกนั้นทำงานใน pre-commit hook บนเครื่องที่มีต้นฉบับ
+name: QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Tests for QA tools
+        run: python -m unittest -v tools.test_qa_check
+
+      - name: GLOSSARY tables parse cleanly
+        run: python tools/glossary.py
+
+      - name: qa_check (all novels)
+        run: python tools/qa_check.py
+
+      - name: index.json / books.json are in sync with chapter files
+        run: |
+          python sync_books.py
+          git diff --exit-code -- books.json 'novels/*/index.json' || {
+            echo "::error::รัน python sync_books.py แล้ว commit ไฟล์ที่เปลี่ยน"; exit 1; }

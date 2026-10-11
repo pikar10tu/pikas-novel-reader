@@ -27,7 +27,7 @@
 - ห้ามแท็ก HTML/Markdown (`<em>`, `**`) — ตัดฉากใช้ย่อหน้าที่มีแค่ `* * *`
 - ห้ามเติมบทพูด/ฉากที่ต้นฉบับไม่มี — ถ้ารอยต่อแหว่ง ให้เขียนเสนอใน Notes
 - ห้ามแก้ `GLOSSARY.md`, `RETROSPECTIVE_LOG.md` หรือตอนเก่าเอง — เสนอใน Notes แทน
-- ห้ามแก้ `chapters.json` / `index.json` ตรงๆ (สร้างจากสคริปต์)
+- ห้ามแก้ `index.json` และจำนวนตอนใน `books.json` ตรงๆ (สร้างจาก sync_books.py) — `chapters.json` เลิกใช้แล้ว ไม่ต้องสร้าง
 
 ## หลังแปลเสร็จ — ต้องทำทุกรอบ
 1. บันทึกเป็น `novels/<เรื่อง>/chapters/chNNN.json` รูปแบบ `{"chapter": N, "vol": 1, "title": "ตอนที่ N: ...", "paragraphs": [...]}`

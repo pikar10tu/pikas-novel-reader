@@ -76,8 +76,8 @@
 - **Context ที่ส่งให้ AI ต่อรอบ:** กฎไฟล์นี้ + เฉพาะแถว GLOSSARY ของตัวละคร/ศัพท์ที่ปรากฏในตอนนั้น + สรุปตอนก่อนหน้า 3-5 บรรทัด (ไม่ต้องส่ง GLOSSARY ทั้งไฟล์)
 
 ## 6. ขั้นตอนหลังแปลทุกรอบ (Checklist)
-1. บันทึกเป็น `novels/<เรื่อง>/chapters/chNNN.json` (ไฟล์ตอนแยก = ต้นฉบับจริง ห้ามแก้ chapters.json ตรงๆ)
-2. `python sync_books.py` → สร้าง chapters.json / index.json / อัปเดตจำนวนตอนใน books.json
+1. บันทึกเป็น `novels/<เรื่อง>/chapters/chNNN.json` (ไฟล์ตอนแยก = ต้นฉบับจริงไฟล์เดียว)
+2. `python sync_books.py` → สร้าง index.json / อัปเดตจำนวนตอนใน books.json
 3. `python tools/qa_check.py <เรื่อง> <ช่วงตอน>` เช่น `python tools/qa_check.py dragon 101-120` ต้องได้ ERROR 0 และ WARN ด้านสำนวนต้องแก้ให้หมด หรืออธิบายไว้ใน Notes
    - **แปลชุดละไม่เกิน 10 ตอน** แปลตอนแรกของชุดเสร็จให้รัน qa_check ทันที ถ้าขึ้น WARN สำนวน ให้แก้วิธีแปลก่อนค่อยแปลตอนต่อไป
 4. ผู้ตรวจอ่าน Notes → อนุมัติศัพท์ใหม่ลง GLOSSARY / ลง RETROSPECTIVE_LOG ถ้ามีย้อนแก้ → commit

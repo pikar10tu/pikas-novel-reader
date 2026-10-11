@@ -409,7 +409,7 @@
     const s = new Set(readSet[book.id] || []); if (s.has(ch)) return;
     s.add(ch); readSet[book.id] = [...s]; store.set('read', readSet);
   }
-  const bookDir = (b) => b.chaptersPath.replace(/[^/]*$/, '');
+  const bookDir = (b) => b.dir || b.chaptersPath.replace(/[^/]*$/, '');
 
   // ===================== preferences =====================
   function applyPrefs() {
@@ -448,7 +448,7 @@
   }
   async function loadToc(b) {
     if (b._toc) return b._toc;
-    const r = await fetch(b.indexPath || b.chaptersPath);
+    const r = await fetch(b.indexPath || bookDir(b) + 'index.json');
     const list = await r.json();
     b._toc = list.map(c => ({ chapter: c.chapter, title: c.title, paragraphs: c.paragraphs }));
     return b._toc;

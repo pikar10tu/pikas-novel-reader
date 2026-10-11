@@ -14,8 +14,8 @@
     "author": "Ether Reads",
     "status": "กำลังแปล",
     "chapterCount": 180,
-    "chaptersPath": "novels/dragon/chapters.json",
-    "indexPath": "novels/dragon/index.json"
+    "indexPath": "novels/dragon/index.json",
+    "dir": "novels/dragon/"
   },
   {
     "id": "revival-hunter",
@@ -32,8 +32,8 @@
     "author": "Sinnoa (신โนอา)",
     "status": "กำลังแปล",
     "chapterCount": 5,
-    "chaptersPath": "novels/revival-hunter/chapters.json",
-    "indexPath": "novels/revival-hunter/index.json"
+    "indexPath": "novels/revival-hunter/index.json",
+    "dir": "novels/revival-hunter/"
   },
   {
     "id": "ccg",
@@ -50,8 +50,8 @@
     "author": "Legend of the Paladin (圣骑士的传说)",
     "status": "กำลังแปล",
     "chapterCount": 5,
-    "chaptersPath": "novels/cultivation-chat-group/chapters.json",
-    "indexPath": "novels/cultivation-chat-group/index.json"
+    "indexPath": "novels/cultivation-chat-group/index.json",
+    "dir": "novels/cultivation-chat-group/"
   },
   {
     "id": "dual-cultivation",
@@ -68,8 +68,8 @@
     "author": "MyLittleBrother",
     "status": "กำลังแปล",
     "chapterCount": 45,
-    "chaptersPath": "novels/dual-cultivation/chapters.json",
-    "indexPath": "novels/dual-cultivation/index.json"
+    "indexPath": "novels/dual-cultivation/index.json",
+    "dir": "novels/dual-cultivation/"
   },
   {
     "id": "cannon-fodder-phoenix",
@@ -87,7 +87,7 @@
     "author": "Katena",
     "status": "กำลังแปล",
     "chapterCount": 5,
-    "chaptersPath": "novels/cannon-fodder-phoenix/chapters.json",
-    "indexPath": "novels/cannon-fodder-phoenix/index.json"
+    "indexPath": "novels/cannon-fodder-phoenix/index.json",
+    "dir": "novels/cannon-fodder-phoenix/"
   }
 ]
