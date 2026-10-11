@@ -3,7 +3,8 @@
      python tools/qa_check.py dragon          (เฉพาะเรื่อง)
      python tools/qa_check.py dragon 101-120  (เฉพาะช่วงตอน)
 ตรวจ: ชื่อต้องห้าม (จาก GLOSSARY.md ส่วน 'ห้ามใช้'), อังกฤษ/จีนค้าง, แท็ก HTML,
-      ย่อหน้ายาวเกิน, สัดส่วนความยาวเทียบต้นฉบับ, ไฟล์ตอนแยกกับ chapters.json ไม่ตรงกัน
+      ย่อหน้ายาวเกิน, สัดส่วนความยาวเทียบต้นฉบับ, ไฟล์ตอนแยกกับ chapters.json ไม่ตรงกัน,
+      ย่อหน้า 1:1 กับต้นฉบับ, 'เธอ' ในบทบรรยาย, ชื่อเฉพาะในต้นฉบับที่ยังไม่อยู่ใน GLOSSARY
 exit code 1 ถ้ามี ERROR
 """
 import json, glob, os, re, sys
@@ -14,7 +15,8 @@ os.chdir(ROOT)
 
 # คำอังกฤษที่อนุญาตให้อยู่ในเนื้อหาได้ (ระดับ/ศัพท์เกมที่คนไทยใช้ทับตรงๆ)
 ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'Enter', 'HP', 'MP', 'VIP'}
-STRICT_FROM = {'dragon': 101}   # ตั้งแต่ตอนนี้ต้องตรงต้นฉบับ 1:1 (ตอนต้นๆ แตกย่อหน้าต่างจากต้นฉบับ)
+STRICT_FROM = {'dragon': 101}
+NAMES_FROM = {'dragon': 181}    # เช็กชื่อใหม่ที่ไม่อยู่ใน GLOSSARY ตั้งแต่ตอนนี้ (ตอนก่อนหน้า audit แล้ว)   # ตั้งแต่ตอนนี้ต้องตรงต้นฉบับ 1:1 (ตอนต้นๆ แตกย่อหน้าต่างจากต้นฉบับ)
 RAW_DIRS = {'dragon': 'raw_chapters/v1c{n}.json'}   # เพิ่มเรื่องอื่นได้ เช่น 'ccg': 'novels/cultivation-chat-group/raw/ch{n}.json'
 MIN_RATIO = 0.65     # ความยาวไทย/อังกฤษ ต่ำกว่านี้ = สงสัยตกหล่น (ไทยปกติ ~0.75-1.1)
 MAX_PARA = 600       # ตัวอักษรต่อย่อหน้า
@@ -22,6 +24,31 @@ TERU_MAX = 10        # 'เธอ' ต่อหมื่นตัวอักษ
 STIFF = ['อย่างไรก็ตาม', 'ในขณะเดียวกัน', 'ได้รับการ', 'อันหรูหรา']   # คำเชื่อมสำนวนแปล
 # ใครห้ามเรียกพ่อด้วยคำไหน: {เรื่อง: [(ชื่อลูก, คำต้องห้าม, คำที่ถูก)]}
 # ย่อหน้าที่ตรวจด้วยตาแล้วว่าถูก (บทบรรยาย / ลีออนคุยกับมูน) {เรื่อง: {(ตอน, ย่อหน้า 1-based)}}
+# คำขึ้นต้นตัวใหญ่ในต้นฉบับที่ไม่ใช่ชื่อเฉพาะ (ไม่ต้องอยู่ใน GLOSSARY)
+NOT_NAMES = set('''I Dad Daddy Mom Mommy Mother Father Mama Papa Your Majesty Highness Queen King Princess Prince
+Lord Lady Sir Miss Mr Mrs Ms Madam Teacher Master Captain Head Maid Dragon Dragons Slayer Silver Empire Imperial
+Sanctuary Temple Army God Oh Ah Hmm Huh Okay Ok Alright Well Yes No Hey Wow Chapter Chap
+Monday Tuesday Wednesday Thursday Friday Saturday Sunday Mondays Tuesdays Saturdays Sundays
+January February March April May June July August September October November December
+English French Chinese Headmaster Principal Vice Auntie Uncle General Classmate Girl Boy Brother Sister'''.split())
+
+def narration(p):
+    """ตัดบทพูด/ความคิดในเครื่องหมายคำพูดออก เหลือแต่บทบรรยาย"""
+    if p.count('"') % 2:   # คำพูดยาวหลายย่อหน้า (เปิด/ปิดไม่ครบในย่อหน้านี้) = นับเป็นบทพูด
+        return ''
+    return re.sub(r'"[^"]*"|\'[^\']*\'|‘[^’]*’', '', p)
+
+def new_names(rp, gloss_lower):
+    """ชื่อเฉพาะที่ขึ้นต้นตัวใหญ่กลางประโยค >= 2 ครั้ง และไม่มีใน GLOSSARY"""
+    cnt, body = {}, rp[1:]   # rp[0] = ชื่อตอน (Title Case ทุกคำ)
+    text = ' '.join(body)
+    for p in body:
+        for w in re.findall(r'(?<=[a-z,;] )([A-Z][a-z]{2,})', p):
+            if w not in NOT_NAMES and w.lower() not in gloss_lower:
+                cnt[w] = cnt.get(w, 0) + 1
+    # คำที่โผล่เป็นตัวเล็กในตอนเดียวกันด้วย = คำนามทั่วไป (Magic/magic) ไม่ใช่ชื่อ
+    return sorted(w for w, c in cnt.items() if c >= 2 and not re.search(r'\b' + w.lower() + r'\b', text))
+
 FATHER_OK = {'dragon': {(18, 32), (23, 51), (119, 14), (132, 38), (136, 24), (137, 11)}}
 FATHER = {'dragon': [('โนอา', 'ปะป๊า', 'ท่านพ่อ'), ('มูน', 'ท่านพ่อ', 'ปะป๊า')]}
 
@@ -92,6 +119,8 @@ def main():
             continue
         ndir = os.path.dirname(b['chaptersPath'])
         banned = load_banned(ndir)
+        gp = os.path.join(ndir, 'GLOSSARY.md')
+        gloss_lower = open(gp, encoding='utf-8').read().lower() if os.path.exists(gp) else ''
         files = sorted(glob.glob(os.path.join(ndir, 'chapters', 'ch*.json')))
         agg = {c['chapter']: c for c in json.load(open(b['chaptersPath'], encoding='utf-8'))}
         print(f"\n=== {b['id']} ({len(files)} ตอน, คำต้องห้าม {len(banned)} คำ)")
@@ -133,8 +162,11 @@ def main():
             fw = re.findall(r'[！？，。：；（）]', text)
             if fw:
                 issues.append(('ERROR', f'เครื่องหมายแบบตัวเต็ม (จีน) ค้าง x{len(fw)}'))
-            if '“' in text or '”' in text:
-                issues.append(('WARN', 'ใช้เครื่องหมายคำพูดโค้ง “ ” — ให้ใช้ " ตรงตามตอนอื่น'))
+            if re.search(r'[“”‘’]', text):
+                issues.append(('WARN', 'ใช้เครื่องหมายคำพูดโค้ง “ ” หรือ ‘ ’ — ให้ใช้ " (หรือ \' สำหรับคำพูดซ้อน) ตรงตามตอนอื่น'))
+            teru_n = [i + 1 for i, p in enumerate(ch['paragraphs']) if 'เธอ' in narration(p)]
+            if teru_n:
+                issues.append(('WARN', f"'เธอ' ในบทบรรยาย ย่อหน้าที่ {teru_n[:6]} — ใช้ นาง/แก/ชื่อ (ในบทพูดใช้ได้)"))
             for i, p in enumerate(ch['paragraphs']):
                 for kid, bad, good in FATHER.get(b['id'], []):
                     others = [k for k, _, _ in FATHER[b['id']] if k != kid]
@@ -163,6 +195,10 @@ def main():
                                        + (f' เริ่มเพี้ยนราวย่อหน้าที่ {hint}' if hint else '') + ' — ตกหล่น ซ้ำ หรือแต่งเพิ่ม'))
                 elif diff < -5:   # ย่อหน้าน้อยกว่าต้นฉบับมาก = อาจตกหล่น (มากกว่าไม่เป็นไร ตอนต้นๆ แตกย่อหน้าเยอะ)
                     issues.append(('WARN', f'จำนวนย่อหน้าต่างจากต้นฉบับ {diff:+d} ({len(ch["paragraphs"])}/{len(rp)}) — เช็กว่าตกหล่นหรือซ้ำ'))
+                if n >= NAMES_FROM.get(b['id'], 10**9) and gloss_lower:
+                    nn = new_names(rp, gloss_lower)
+                    if nn:
+                        issues.append(('WARN', f'ชื่อเฉพาะในต้นฉบับที่ยังไม่อยู่ใน GLOSSARY: {nn[:8]} — เสนอใน Proposed New Terms'))
                 if ratio < MIN_RATIO:
                     issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/อังกฤษ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
             a = agg.get(n)
