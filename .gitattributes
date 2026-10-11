@@ -1,0 +1,6 @@
+# เก็บทุกไฟล์ข้อความเป็น LF (เลิกเตือน LF/CRLF บน Windows) ไฟล์รูปให้ git ตรวจเองว่าเป็น binary
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary

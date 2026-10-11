@@ -49,6 +49,8 @@ def new_names(rp, gloss_lower):
     # คำที่โผล่เป็นตัวเล็กในตอนเดียวกันด้วย = คำนามทั่วไป (Magic/magic) ไม่ใช่ชื่อ
     return sorted(w for w, c in cnt.items() if c >= 2 and not re.search(r'\b' + w.lower() + r'\b', text))
 
+# ตอนที่ย่อหน้าซ้ำเป็นก้อนโดยเจตนาของผู้แต่ง (ตรวจด้วยตาแล้ว) {เรื่อง: {ตอน}}
+DUP_OK = {'revival-hunter': {5}}   # พาดหัวข่าวที่ทยอยหายไปทีละบรรทัด
 FATHER_OK = {'dragon': {(18, 32), (23, 51), (119, 14), (132, 38), (136, 24), (137, 11)}}
 FATHER = {'dragon': [('โนอา', 'ปะป๊า', 'ท่านพ่อ'), ('มูน', 'ท่านพ่อ', 'ปะป๊า')]}
 
@@ -174,7 +176,7 @@ def main():
                         continue
                     if kid in p and bad in p and not any(o in p for o in others):
                         issues.append(('WARN', f"ย่อหน้า {i + 1}: {kid} คู่กับ '{bad}' — ถ้า{kid}เป็นคนพูด ต้องใช้ '{good}'"))
-            for d, idx in dup_blocks(ch['paragraphs']).items():
+            for d, idx in ({} if n in DUP_OK.get(b['id'], ()) else dup_blocks(ch['paragraphs'])).items():
                 issues.append(('ERROR', f'ย่อหน้าซ้ำเป็นก้อน (ห่างกัน {d}) ที่ย่อหน้า {idx[:6]} — น่าจะเหลือย่อหน้าฉบับเก่าค้าง หรือตัดต่อพลาด'))
             if any(not p.strip() for p in ch['paragraphs']):
                 issues.append(('WARN', 'มีย่อหน้าว่าง'))

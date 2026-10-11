@@ -1,0 +1,26 @@
+#!/bin/sh
+# ห้าม commit ถ้า qa_check มี ERROR (เฉพาะเรื่องที่มีไฟล์เปลี่ยน) หรือเทสต์ของ qa_check ไม่ผ่าน
+# เปิดใช้ (ครั้งเดียวต่อเครื่อง): git config core.hooksPath .githooks
+# ข้ามได้ในกรณีจำเป็นจริงๆ: git commit --no-verify
+PY=python
+command -v $PY >/dev/null 2>&1 || PY=python3
+staged=$(git diff --cached --name-only)
+
+if echo "$staged" | grep -q '^tools/'; then
+  $PY -m unittest -q tools.test_qa_check 2>/dev/null || { echo "pre-commit: เทสต์ของ qa_check ไม่ผ่าน (รัน python -m unittest tools.test_qa_check)"; exit 1; }
+fi
+
+# โฟลเดอร์เรื่องที่มีไฟล์เปลี่ยน -> id ใน books.json (ถ้าแก้ tools/ หรือ books.json ให้ตรวจทุกเรื่อง)
+if echo "$staged" | grep -qE '^(tools/|books\.json)'; then
+  ids=$($PY -c "import json;print(' '.join(b['id'] for b in json.load(open('books.json',encoding='utf-8'))))")
+else
+  dirs=$(echo "$staged" | sed -n 's#^novels/\([^/]*\)/.*#\1#p' | sort -u)
+  ids=$($PY -c "import json,sys;d=set(sys.argv[1:]);print(' '.join(b['id'] for b in json.load(open('books.json',encoding='utf-8')) if b['chaptersPath'].split('/')[1] in d))" $dirs)
+fi
+
+fail=0
+for id in $ids; do
+  out=$($PY tools/qa_check.py "$id" 2>&1) || { echo "$out" | grep -E '^===|\[ERROR\]|สรุป'; fail=1; }
+done
+[ $fail -eq 0 ] || { echo "pre-commit: qa_check มี ERROR — แก้ก่อน commit (ดูวิธีแก้ใน AGENTS.md)"; exit 1; }
+exit 0
