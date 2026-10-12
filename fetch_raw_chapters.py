@@ -8,11 +8,14 @@ os.makedirs('raw_chapters', exist_ok=True)
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
-for ch in range(161, 196):
+# Volume 2 has 107 chapters (ch 196 to ch 302)
+# You can download in batches or all Volume 2
+for v2_num in range(1, 108):
+    ch = 195 + v2_num
     file_path = f'raw_chapters/v1c{ch}.json'
     if os.path.exists(file_path):
         continue
-    url = f'https://etherreads.com/shut-up-malevolent-dragon-i-dont-want-to-have-any-more-children-with-you-v1c{ch}/'
+    url = f'https://etherreads.com/shut-up-malevolent-dragon-i-dont-want-to-have-any-more-children-with-you-v2c{v2_num}/'
     try:
         req = urllib.request.Request(url, headers=headers)
         html = urllib.request.urlopen(req, timeout=15).read().decode('utf-8')
