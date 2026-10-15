@@ -23,6 +23,10 @@ RAW_DIRS = {'dragon': 'raw_chapters/v1c{n}.json'}   # เพิ่มเรื�
 MIN_RATIO = 0.65     # ความยาวไทย/อังกฤษ ต่ำกว่านี้ = สงสัยตกหล่น (ไทยปกติ ~0.75-1.1)
 MAX_PARA = 600       # ตัวอักษรต่อย่อหน้า
 TERU_MAX = 10        # 'เธอ' ต่อหมื่นตัวอักษร เกินนี้ = สำนวนแปลตรงตัว (ตอน 81-100 อยู่ที่ ~0.5, ตอน 101-140 พุ่งไป ~30)
+MODERN_MAX = 15      # 'ฉัน'/'นาย' ในบทพูดต่อหมื่นตัวอักษร (dragon ใช้ ข้า/เจ้า: ปกติ <8, Ch 238 ก่อนแก้ ~40)
+MODERN_PRON = {'dragon'}   # เรื่องที่ตัวละครหลักใช้ ข้า/เจ้า
+NAI = r'(?<!เจ้า)นาย(?!พล|ทหาร|ท่าน|กอง|ก[^ ]|หน้า|ทุน|อำเภอ|ช่าง|ร้อย|สิบ|ห้าง)'
+VOLS = {'dragon': [(1, 1), (196, 2)]}   # (ตอนแรกของเล่ม, เล่ม)
 STIFF = ['อย่างไรก็ตาม', 'ในขณะเดียวกัน', 'ได้รับการ', 'อันหรูหรา']   # คำเชื่อมสำนวนแปล
 # ใครห้ามเรียกพ่อด้วยคำไหน: {เรื่อง: [(ชื่อลูก, คำต้องห้าม, คำที่ถูก)]}
 # ย่อหน้าที่ตรวจด้วยตาแล้วว่าถูก (บทบรรยาย / ลีออนคุยกับมูน) {เรื่อง: {(ตอน, ย่อหน้า 1-based)}}
@@ -104,6 +108,25 @@ def first_drift(th, raw):
             return i + 1
     return None
 
+def modern_density(paras):
+    """'ฉัน' + 'นาย' (สรรพนาม ไม่นับ เจ้านาย/นายพล ฯลฯ) ในบทพูด/ความคิด ต่อหมื่นตัวอักษร"""
+    q = ' '.join(x for p in paras for t in re.findall(r'"([^"]*)"|\'([^\']*)\'', p) for x in t)
+    L = max(1, len('\n'.join(paras))) / 10000
+    return (q.count('ฉัน') + len(re.findall(NAI, q))) / L
+
+def header_issues(ch, n, vols):
+    """เลขตอนในย่อหน้าแรก/title ต้องตรงกับไฟล์ และ vol ต้องตรงกับเล่ม (Ch 237-245 เคยใช้เลขต้นฉบับ + vol 1)"""
+    out = []
+    p0 = ch['paragraphs'][0] if ch['paragraphs'] else ''
+    for where, t in (('ย่อหน้าแรก', p0), ('title', ch.get('title', ''))):
+        m = re.match(r'ตอนที่\s*(\d+)', t)
+        if m and int(m.group(1)) != n:
+            out.append(('ERROR', f"{where} เขียน 'ตอนที่ {m.group(1)}' แต่ไฟล์นี้คือตอน {n} — ห้ามใช้เลขตอนของต้นฉบับ"))
+    vol = max((v for start, v in vols if n >= start), default=None)
+    if vol and ch.get('vol') != vol:
+        out.append(('ERROR', f"vol = {ch.get('vol')} แต่ตอน {n} อยู่เล่ม {vol}"))
+    return out
+
 def parse_range(s):
     a, _, b = s.partition('-')
     return int(a), int(b or a)
@@ -157,6 +180,11 @@ def main():
             teru = text.count('เธอ') / L
             if teru > TERU_MAX:
                 issues.append(('WARN', f"สำนวนแปลตรงตัว: 'เธอ' {teru:.0f} ครั้ง/หมื่นตัวอักษร (เกณฑ์ {TERU_MAX}) — บทบรรยายใช้ นาง/แก/ชื่อ"))
+            if b['id'] in MODERN_PRON:
+                modern = modern_density(ch['paragraphs'])
+                if modern > MODERN_MAX:
+                    issues.append(('WARN', f"สรรพนาม 'ฉัน/นาย' ในบทพูด {modern:.0f} ครั้ง/หมื่นตัวอักษร (เกณฑ์ {MODERN_MAX}) — เรื่องนี้ใช้ ข้า/เจ้า (เคยหลุดใน Ch 237-243)"))
+            issues += header_issues(ch, n, VOLS.get(b['id'], []))
             stiff = {w: text.count(w) for w in STIFF if text.count(w) >= 3}
             if stiff:
                 issues.append(('WARN', f'คำเชื่อมสำนวนแปลหนาแน่น {stiff}'))

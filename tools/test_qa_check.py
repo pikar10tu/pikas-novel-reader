@@ -142,3 +142,30 @@ class GlossaryParse(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ModernPronouns(unittest.TestCase):
+    def test_flags_chan_nai_dialogue(self):
+        # Ch 238 ก่อนแก้: ลีออน/รอสวิธาคุยกันด้วย ฉัน/นาย
+        P = ['"ฉันจะไปกับนายเอง" นางเอ่ย'] * 5
+        self.assertGreater(qa.modern_density(P), qa.MODERN_MAX)
+
+    def test_ignores_narration_and_compounds(self):
+        P = ['ฉันในบทบรรยายไม่นับ "ข้าจะไปหาเจ้านายกับท่านนายพล" ลีออนว่า'] * 5
+        self.assertEqual(qa.modern_density(P), 0)
+
+
+class Header(unittest.TestCase):
+    def test_source_chapter_number(self):
+        ch = {'paragraphs': ['ตอนที่ 43: ชื่อ'], 'title': 'ตอนที่ 238: ชื่อ', 'vol': 2}
+        self.assertEqual(len(qa.header_issues(ch, 238, [(1, 1), (196, 2)])), 1)
+
+    def test_wrong_vol(self):
+        ch = {'paragraphs': ['ตอนที่ 238: ชื่อ'], 'title': 'ตอนที่ 238: ชื่อ', 'vol': 1}
+        self.assertEqual(len(qa.header_issues(ch, 238, [(1, 1), (196, 2)])), 1)
+
+    def test_ok_and_untitled(self):
+        ok = {'paragraphs': ['ตอนที่ 238: ชื่อ'], 'title': 'ตอนที่ 238: ชื่อ', 'vol': 2}
+        early = {'paragraphs': ['ภายในคุกใต้ดิน'], 'title': 'ตอนที่ 1: ชื่อ', 'vol': 1}
+        self.assertEqual(qa.header_issues(ok, 238, [(1, 1), (196, 2)]), [])
+        self.assertEqual(qa.header_issues(early, 1, [(1, 1), (196, 2)]), [])
