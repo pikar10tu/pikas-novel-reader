@@ -1,6 +1,6 @@
 """เทสต์ของ qa_check — รัน: python -m unittest tools.test_qa_check
 (pre-commit hook รันให้อัตโนมัติเมื่อมีการแก้ไฟล์ใน tools/)"""
-import os, re, tempfile, unittest
+import glob, json, os, re, tempfile, unittest
 
 from tools import qa_check as qa
 
@@ -169,3 +169,72 @@ class Header(unittest.TestCase):
         early = {'paragraphs': ['ภายในคุกใต้ดิน'], 'title': 'ตอนที่ 1: ชื่อ', 'vol': 1}
         self.assertEqual(qa.header_issues(ok, 238, [(1, 1), (196, 2)]), [])
         self.assertEqual(qa.header_issues(early, 1, [(1, 1), (196, 2)]), [])
+
+
+class NovelConfig(unittest.TestCase):
+    def test_defaults_when_no_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            cfg = qa.load_cfg(d)
+        self.assertFalse(cfg['no_teru_narration'])
+        self.assertEqual(cfg['strict_from'], 1)
+
+    def test_file_overrides_defaults(self):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, 'novel.json'), 'w', encoding='utf-8') as f:
+                f.write('{"source_lang": "zh", "no_archaic": true}')
+            cfg = qa.load_cfg(d)
+        self.assertEqual((cfg['source_lang'], cfg['no_archaic'], cfg['vols']), ('zh', True, []))
+
+    def test_every_novel_config_has_known_keys(self):
+        for p in glob.glob(os.path.join(qa.ROOT, 'novels', '*', 'novel.json')):
+            with open(p, encoding='utf-8') as f:
+                unknown = set(json.load(f)) - set(qa.CFG_DEFAULTS)
+            self.assertFalse(unknown, f'{p}: คีย์ที่ไม่รู้จัก {unknown}')
+
+    def test_raw_paras_formats_chapter_number(self):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, 'ch007.json'), 'w', encoding='utf-8') as f:
+                f.write('{"paragraphs": ["a", "b"]}')
+            self.assertEqual(qa.raw_paras({'raw': os.path.join(d, 'ch{n:03d}.json')}, 7), ['a', 'b'])
+            self.assertIsNone(qa.raw_paras({'raw': os.path.join(d, 'ch{n:03d}.json')}, 8))
+
+
+class ChineseTitle(unittest.TestCase):
+    def test_strips_chinese_heading(self):
+        _, raw = qa.body_paras([], ['第1章 黃山真君和9洲1號群', '正文'])
+        self.assertEqual(raw, ['正文'])
+
+
+class CleanRaw(unittest.TestCase):
+    def test_drops_site_boilerplate_and_entities(self):
+        from tools import clean_raw
+        kept, dropped, _ = clean_raw.clean(['I&nbsp;envied him.', '&larr; Back to Novel Translation Hub',
+                                         'Username or Email Address', '', '<p>Next.</p>'])
+        self.assertEqual(kept, ['I envied him.', 'Next.'])
+        self.assertEqual(len(dropped), 3)
+
+    def test_keeps_emphasis_tags(self):
+        from tools import clean_raw
+        self.assertEqual(clean_raw.clean(['<em>Damn it.</em>'])[0], ['<em>Damn it.</em>'])
+
+    def test_moves_footnotes_to_notes(self):
+        from tools import clean_raw
+        kept, _, notes = clean_raw.clean(['Story.', '[1] 역대급 means all-time greatest', '<strong>Footnotes:</strong>', 'Mana is magic.'])
+        self.assertEqual(kept, ['Story.'])
+        self.assertEqual(notes, ['[1] 역대급 means all-time greatest', 'Mana is magic.'])
+
+    def test_translator_chatter_goes_to_notes(self):
+        from tools import clean_raw
+        kept, _, notes = clean_raw.clean(['Story.', '(TL: goosebumps)', '[TN: Auror confusion]', '[T/N]', 'Pyung note'])
+        self.assertEqual(kept, ['Story.'])
+        self.assertEqual(len(notes), 3)
+
+    def test_note_head_takes_rest_of_chapter(self):
+        from tools import clean_raw
+        kept, _, notes = clean_raw.clean(['End.', '(Note:', 'Hey there guys, new translator from now on.'])
+        self.assertEqual((kept, len(notes)), (['End.'], 1))
+
+    def test_keeps_story_lines_starting_with_back_to(self):
+        from tools import clean_raw
+        line = 'Back to my Hell. My 125 square-foot, single room apartment.'
+        self.assertEqual(clean_raw.clean([line, 'Back to the time the Flame Emperor could still die!'])[1], [])

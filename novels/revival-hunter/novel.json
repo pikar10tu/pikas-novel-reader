@@ -1,0 +1,9 @@
+{
+  "genre": "modern-korean",
+  "source_lang": "en",
+  "raw": "novels/revival-hunter/raw/ch{n}.json",
+  "dup_ok": [
+    5
+  ],
+  "strict_from": 6
+}

@@ -17,16 +17,12 @@ from tools import glossary   # noqa: E402
 
 # คำอังกฤษที่อนุญาตให้อยู่ในเนื้อหาได้ (ระดับ/ศัพท์เกมที่คนไทยใช้ทับตรงๆ)
 ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'Enter', 'HP', 'MP', 'VIP'}
-STRICT_FROM = {'dragon': 101}
-NAMES_FROM = {'dragon': 181}    # เช็กชื่อใหม่ที่ไม่อยู่ใน GLOSSARY ตั้งแต่ตอนนี้ (ตอนก่อนหน้า audit แล้ว)   # ตั้งแต่ตอนนี้ต้องตรงต้นฉบับ 1:1 (ตอนต้นๆ แตกย่อหน้าต่างจากต้นฉบับ)
-RAW_DIRS = {'dragon': 'raw_chapters/v1c{n}.json'}   # เพิ่มเรื่องอื่นได้ เช่น 'ccg': 'novels/cultivation-chat-group/raw/ch{n}.json'
+# ค่าตั้งรายเรื่องอยู่ใน novels/<เรื่อง>/novel.json (ดู load_cfg) — เพิ่มเรื่องใหม่ไม่ต้องแก้โค้ด
 MIN_RATIO = 0.65     # ความยาวไทย/อังกฤษ ต่ำกว่านี้ = สงสัยตกหล่น (ไทยปกติ ~0.75-1.1)
 MAX_PARA = 600       # ตัวอักษรต่อย่อหน้า
 TERU_MAX = 10        # 'เธอ' ต่อหมื่นตัวอักษร เกินนี้ = สำนวนแปลตรงตัว (ตอน 81-100 อยู่ที่ ~0.5, ตอน 101-140 พุ่งไป ~30)
 MODERN_MAX = 15      # 'ฉัน'/'นาย' ในบทพูดต่อหมื่นตัวอักษร (dragon ใช้ ข้า/เจ้า: ปกติ <8, Ch 238 ก่อนแก้ ~40)
-MODERN_PRON = {'dragon'}   # เรื่องที่ตัวละครหลักใช้ ข้า/เจ้า
 NAI = r'(?<!เจ้า)นาย(?!พล|ทหาร|ท่าน|กอง|ก[^ ]|หน้า|ทุน|อำเภอ|ช่าง|ร้อย|สิบ|ห้าง)'
-VOLS = {'dragon': [(1, 1), (196, 2), (303, 3)]}   # (ตอนแรกของเล่ม, เล่ม)
 STIFF = ['อย่างไรก็ตาม', 'ในขณะเดียวกัน', 'ได้รับการ', 'อันหรูหรา']   # คำเชื่อมสำนวนแปล
 # ใครห้ามเรียกพ่อด้วยคำไหน: {เรื่อง: [(ชื่อลูก, คำต้องห้าม, คำที่ถูก)]}
 # ย่อหน้าที่ตรวจด้วยตาแล้วว่าถูก (บทบรรยาย / ลีออนคุยกับมูน) {เรื่อง: {(ตอน, ย่อหน้า 1-based)}}
@@ -55,10 +51,32 @@ def new_names(rp, gloss_lower):
     # คำที่โผล่เป็นตัวเล็กในตอนเดียวกันด้วย = คำนามทั่วไป (Magic/magic) ไม่ใช่ชื่อ
     return sorted(w for w, c in cnt.items() if c >= 2 and not re.search(r'\b' + w.lower() + r'\b', text))
 
-# ตอนที่ย่อหน้าซ้ำเป็นก้อนโดยเจตนาของผู้แต่ง (ตรวจด้วยตาแล้ว) {เรื่อง: {ตอน}}
-DUP_OK = {'revival-hunter': {5}}   # พาดหัวข่าวที่ทยอยหายไปทีละบรรทัด
-FATHER_OK = {'dragon': {(18, 32), (23, 51), (119, 14), (132, 38), (136, 24), (137, 11)}}
-FATHER = {'dragon': [('โนอา', 'ปะป๊า', 'ท่านพ่อ'), ('มูน', 'ท่านพ่อ', 'ปะป๊า')]}
+# ความยาวไทย/ต้นฉบับขั้นต่ำ ตามภาษาต้นฉบับ (จีน 1 ตัวอักษร ≈ ไทย 3.5-4.5 ตัวอักษร — ccg Ch 1-5 อยู่ที่ ~4.1)
+MIN_RATIO_BY_LANG = {'en': MIN_RATIO, 'zh': 2.5, 'ko': 1.0, 'ja': 1.0}
+ARCHAIC = ['ไฉน', 'ดั่ง', 'ประหนึ่ง', 'มิได้', 'มิใช่', 'หาใช่']
+ARCHAIC_MAX = 3      # คำโบราณต่อตอน (ตัวละครพูดโบราณจริงๆ มีได้บ้าง)
+
+CFG_DEFAULTS = {
+    'raw': None,                 # รูปแบบที่อยู่ต้นฉบับ เช่น "novels/x/raw/ch{n}.json" ({n} หรือ {n:03d})
+    'source_lang': 'en',         # en / zh / ko / ja — ใช้ตั้งเกณฑ์ความยาว และเช็กชื่อใหม่ได้เฉพาะ en
+    'genre': None,               # western-fantasy / xianxia / modern-korean / modern-xianxia (ดู GENRE_*.md)
+    'strict_from': 1,            # ตั้งแต่ตอนนี้ย่อหน้าต้องตรงต้นฉบับ 1:1
+    'names_from': 1,             # ตั้งแต่ตอนนี้เช็กชื่อในต้นฉบับที่ยังไม่อยู่ใน GLOSSARY
+    'vols': [],                  # [[ตอนแรกของเล่ม, เล่ม], ...]
+    'no_teru_narration': False,  # ห้าม 'เธอ' ในบทบรรยาย (เรื่องย้อนยุค/แฟนตาซี) — เรื่องยุคปัจจุบันใช้ได้
+    'classical_pronouns': False, # ตัวละครหลักใช้ ข้า/เจ้า — เตือนเมื่อ ฉัน/นาย ในบทพูดหนาแน่น
+    'no_archaic': False,         # ห้ามคำโบราณ ไฉน/ดั่ง/มิได้ (dragon เลือกโทน A+C)
+    'father': [],                # [[ชื่อลูก, คำต้องห้าม, คำที่ถูก], ...]
+    'father_ok': [],             # [[ตอน, ย่อหน้า 1-based], ...] ที่ตรวจด้วยตาแล้วว่าถูก
+    'dup_ok': [],                # ตอนที่ย่อหน้าซ้ำเป็นก้อนโดยเจตนาของผู้แต่ง
+}
+
+def load_cfg(ndir):
+    p = os.path.join(ndir, 'novel.json')
+    cfg = dict(CFG_DEFAULTS)
+    if os.path.exists(p):
+        cfg.update(json.load(open(p, encoding='utf-8')))
+    return cfg
 
 def load_banned(novel_dir):
     """ตาราง 'ห้ามใช้' ใน GLOSSARY.md: | ❌ คำผิด | ✅ คำถูก | ... -> {คำผิด: คำถูก}"""
@@ -83,8 +101,8 @@ def dup_blocks(P, thr=0.35):
                 found.setdefault(d, []).append(i + 1)
     return {d: v for d, v in found.items() if len(v) >= 3}
 
-def raw_paras(book_id, n):
-    pat = RAW_DIRS.get(book_id)
+def raw_paras(cfg, n):
+    pat = cfg.get('raw')
     if not pat:
         return None
     p = pat.format(n=n)
@@ -97,7 +115,7 @@ def body_paras(th, raw):
     """ตัดบรรทัดชื่อตอนออกทั้งสองฝั่งก่อนเทียบย่อหน้า 1:1"""
     if th and th[0].startswith('ตอนที่'):
         th = th[1:]
-    if raw and re.search(r'chap(?:ter)?\s*\d', raw[0], re.I):
+    if raw and re.search(r'chap(?:ter)?\s*\d|^第\s*\d+\s*章', raw[0], re.I):
         raw = raw[1:]
     return th, raw
 
@@ -140,6 +158,7 @@ def main():
         if only and b['id'] != only:
             continue
         ndir = book_dir(b)
+        cfg = load_cfg(ndir)
         g = glossary.parse(os.path.join(ndir, 'GLOSSARY.md'))
         banned, gloss_lower = g.banned, g.text.lower()
         files = sorted(glob.glob(os.path.join(ndir, 'chapters', 'ch*.json')))
@@ -178,13 +197,13 @@ def main():
                 issues.append(('WARN', f'ย่อหน้ายาวเกิน {MAX_PARA} ตัวอักษร: ย่อหน้าที่ {long[:5]}'))
             L = max(1, len(text)) / 10000
             teru = text.count('เธอ') / L
-            if teru > TERU_MAX:
+            if cfg['no_teru_narration'] and teru > TERU_MAX:
                 issues.append(('WARN', f"สำนวนแปลตรงตัว: 'เธอ' {teru:.0f} ครั้ง/หมื่นตัวอักษร (เกณฑ์ {TERU_MAX}) — บทบรรยายใช้ นาง/แก/ชื่อ"))
-            if b['id'] in MODERN_PRON:
+            if cfg['classical_pronouns']:
                 modern = modern_density(ch['paragraphs'])
                 if modern > MODERN_MAX:
                     issues.append(('WARN', f"สรรพนาม 'ฉัน/นาย' ในบทพูด {modern:.0f} ครั้ง/หมื่นตัวอักษร (เกณฑ์ {MODERN_MAX}) — เรื่องนี้ใช้ ข้า/เจ้า (เคยหลุดใน Ch 237-243)"))
-            issues += header_issues(ch, n, VOLS.get(b['id'], []))
+            issues += header_issues(ch, n, [tuple(v) for v in cfg['vols']])
             stiff = {w: text.count(w) for w in STIFF if text.count(w) >= 3}
             if stiff:
                 issues.append(('WARN', f'คำเชื่อมสำนวนแปลหนาแน่น {stiff}'))
@@ -194,20 +213,25 @@ def main():
             if re.search(r'[“”‘’]', text):
                 issues.append(('WARN', 'ใช้เครื่องหมายคำพูดโค้ง “ ” หรือ ‘ ’ — ให้ใช้ " (หรือ \' สำหรับคำพูดซ้อน) ตรงตามตอนอื่น'))
             teru_n = [i + 1 for i, p in enumerate(ch['paragraphs']) if 'เธอ' in narration(p)]
-            if teru_n:
+            if cfg['no_teru_narration'] and teru_n:
                 issues.append(('WARN', f"'เธอ' ในบทบรรยาย ย่อหน้าที่ {teru_n[:6]} — ใช้ นาง/แก/ชื่อ (ในบทพูดใช้ได้)"))
+            if cfg['no_archaic']:
+                arch = {w: text.count(w) for w in ARCHAIC if w in text}
+                if sum(arch.values()) > ARCHAIC_MAX:
+                    issues.append(('WARN', f'คำโบราณ {arch} — เรื่องนี้ใช้ภาษาปัจจุบัน ยกเว้นตัวละครที่พูดโบราณจริงๆ (ดู STYLE_SAMPLES)'))
+            father_ok = {tuple(x) for x in cfg['father_ok']}
             for i, p in enumerate(ch['paragraphs']):
-                for kid, bad, good in FATHER.get(b['id'], []):
-                    others = [k for k, _, _ in FATHER[b['id']] if k != kid]
-                    if (n, i + 1) in FATHER_OK.get(b['id'], set()):
+                for kid, bad, good in cfg['father']:
+                    others = [k for k, _, _ in cfg['father'] if k != kid]
+                    if (n, i + 1) in father_ok:
                         continue
                     if kid in p and bad in p and not any(o in p for o in others):
                         issues.append(('WARN', f"ย่อหน้า {i + 1}: {kid} คู่กับ '{bad}' — ถ้า{kid}เป็นคนพูด ต้องใช้ '{good}'"))
-            for d, idx in ({} if n in DUP_OK.get(b['id'], ()) else dup_blocks(ch['paragraphs'])).items():
+            for d, idx in ({} if n in cfg['dup_ok'] else dup_blocks(ch['paragraphs'])).items():
                 issues.append(('ERROR', f'ย่อหน้าซ้ำเป็นก้อน (ห่างกัน {d}) ที่ย่อหน้า {idx[:6]} — น่าจะเหลือย่อหน้าฉบับเก่าค้าง หรือตัดต่อพลาด'))
             if any(not p.strip() for p in ch['paragraphs']):
                 issues.append(('WARN', 'มีย่อหน้าว่าง'))
-            rp = raw_paras(b['id'], n)
+            rp = raw_paras(cfg, n)
             if rp:
                 ratio = sum(map(len, ch['paragraphs'])) / max(1, sum(map(len, rp)))
                 np_th, np_raw = len(re.findall(r'\(', text)), len(re.findall(r'\(', ' '.join(rp)))
@@ -216,7 +240,7 @@ def main():
                 if re.search(r'[￣︿◕ᴗ✿]', text):
                     issues.append(('WARN', 'มีอีโมจิตัวอักษร (kaomoji) — ตัดออกหรือบรรยายเป็นคำ'))
                 diff = len(ch['paragraphs']) - len(rp)
-                if n >= STRICT_FROM.get(b['id'], 10**9):
+                if n >= cfg['strict_from']:
                     th_b, raw_b = body_paras(ch['paragraphs'], rp)
                     if len(th_b) != len(raw_b):
                         hint = first_drift(th_b, raw_b)
@@ -224,12 +248,12 @@ def main():
                                        + (f' เริ่มเพี้ยนราวย่อหน้าที่ {hint}' if hint else '') + ' — ตกหล่น ซ้ำ หรือแต่งเพิ่ม'))
                 elif diff < -5:   # ย่อหน้าน้อยกว่าต้นฉบับมาก = อาจตกหล่น (มากกว่าไม่เป็นไร ตอนต้นๆ แตกย่อหน้าเยอะ)
                     issues.append(('WARN', f'จำนวนย่อหน้าต่างจากต้นฉบับ {diff:+d} ({len(ch["paragraphs"])}/{len(rp)}) — เช็กว่าตกหล่นหรือซ้ำ'))
-                if n >= NAMES_FROM.get(b['id'], 10**9) and gloss_lower:
+                if cfg['source_lang'] == 'en' and n >= cfg['names_from'] and gloss_lower:
                     nn = new_names(rp, gloss_lower)
                     if nn:
                         issues.append(('WARN', f'ชื่อเฉพาะในต้นฉบับที่ยังไม่อยู่ใน GLOSSARY: {nn[:8]} — เสนอใน Proposed New Terms'))
-                if ratio < MIN_RATIO:
-                    issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/อังกฤษ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
+                if ratio < MIN_RATIO_BY_LANG.get(cfg['source_lang'], MIN_RATIO):
+                    issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/ต้นฉบับ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
             if toc.get(n) != ch['title']:
                 issues.append(('WARN', 'สารบัญ index.json ไม่ตรงกับไฟล์ตอน — รัน python sync_books.py'))
             for lvl, msg in issues:

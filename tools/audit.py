@@ -4,7 +4,7 @@
      python tools/audit.py dragon 181-200 --log        + บันทึกสรุปชุดต่อท้าย novels/<เรื่อง>/audit_log.csv
 คอลัมน์:
   ย่อหน้า   ไทย/ต้นฉบับ (ไม่นับชื่อตอน) ไม่เท่ากัน = ตกหล่น/ซ้ำ/แต่งเพิ่ม
-  ยาว      ความยาวไทย/อังกฤษ (ปกติ 0.85-1.05)
+  ยาว      ความยาวไทย/ต้นฉบับ (อังกฤษปกติ 0.85-1.05, จีนปกติ 3.5-4.5)
   ผิดสัดส่วน ย่อหน้าที่ยาวผิดสัดส่วนกับย่อหน้าต้นฉบับคู่กัน
   เธอ      'เธอ' ในบทบรรยาย, แข็ง = คำเชื่อมสำนวนแปลต่อหมื่นตัวอักษร
   แก้      ย่อหน้าที่ต่างจาก HEAD (ใช้ดูว่า "เกลา" จริงหรือแค่แตะไม่กี่บรรทัด)
@@ -32,7 +32,7 @@ def measure(book, n, gloss_lower):
     if not os.path.exists(path):
         return None
     paras = json.load(open(path, encoding='utf-8'))['paragraphs']
-    rp = qa.raw_paras(book['id'], n) or []
+    rp = qa.raw_paras(qa.load_cfg(qa.book_dir(book)), n) or []
     th, raw = qa.body_paras(paras, rp)
     text = ''.join(th)
     k = max(1, len(text)) / 10000
@@ -70,7 +70,10 @@ def main():
         sys.exit(__doc__)
     book_id, (a, b) = args[0], qa.parse_range(args[1])
     sample = int(sys.argv[sys.argv.index('--sample') + 1]) if '--sample' in sys.argv else 0
-    book = next(x for x in json.load(open('books.json', encoding='utf-8')) if x['id'] == book_id)
+    books = json.load(open('books.json', encoding='utf-8'))
+    book = next((x for x in books if book_id in (x['id'], os.path.basename(qa.book_dir(x)))), None)
+    if not book:
+        sys.exit(f'ไม่พบเรื่อง {book_id} ใน books.json')
     gp = os.path.join(qa.book_dir(book), 'GLOSSARY.md')
     gloss_lower = open(gp, encoding='utf-8').read().lower() if os.path.exists(gp) else ''
 

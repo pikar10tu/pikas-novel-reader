@@ -1,0 +1,62 @@
+{
+  "genre": "western-fantasy",
+  "source_lang": "en",
+  "raw": "raw_chapters/v1c{n}.json",
+  "strict_from": 101,
+  "names_from": 181,
+  "vols": [
+    [
+      1,
+      1
+    ],
+    [
+      196,
+      2
+    ],
+    [
+      303,
+      3
+    ]
+  ],
+  "no_teru_narration": true,
+  "classical_pronouns": true,
+  "no_archaic": true,
+  "father": [
+    [
+      "โนอา",
+      "ปะป๊า",
+      "ท่านพ่อ"
+    ],
+    [
+      "มูน",
+      "ท่านพ่อ",
+      "ปะป๊า"
+    ]
+  ],
+  "father_ok": [
+    [
+      18,
+      32
+    ],
+    [
+      23,
+      51
+    ],
+    [
+      119,
+      14
+    ],
+    [
+      132,
+      38
+    ],
+    [
+      136,
+      24
+    ],
+    [
+      137,
+      11
+    ]
+  ]
+}
