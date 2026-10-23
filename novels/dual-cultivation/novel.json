@@ -3,5 +3,6 @@
   "source_lang": "en",
   "raw": "novels/dual-cultivation/raw/ch{n}.json",
   "no_teru_narration": true,
-  "classical_pronouns": true
+  "classical_pronouns": true,
+  "strict_from": 46
 }

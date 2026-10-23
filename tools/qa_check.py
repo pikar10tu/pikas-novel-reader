@@ -16,7 +16,7 @@ sys.path.insert(0, ROOT)
 from tools import glossary   # noqa: E402
 
 # คำอังกฤษที่อนุญาตให้อยู่ในเนื้อหาได้ (ระดับ/ศัพท์เกมที่คนไทยใช้ทับตรงๆ)
-ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'Enter', 'HP', 'MP', 'VIP'}
+ALLOWED_LATIN = {'SSS', 'SS', 'EX', 'OK', 'PK', 'NPC', 'LIVE', 'Bad', 'End', 'Enter', 'HP', 'MP', 'VIP', 'GG'}
 # ค่าตั้งรายเรื่องอยู่ใน novels/<เรื่อง>/novel.json (ดู load_cfg) — เพิ่มเรื่องใหม่ไม่ต้องแก้โค้ด
 MIN_RATIO = 0.65     # ความยาวไทย/อังกฤษ ต่ำกว่านี้ = สงสัยตกหล่น (ไทยปกติ ~0.75-1.1)
 MAX_PARA = 600       # ตัวอักษรต่อย่อหน้า
@@ -46,7 +46,8 @@ def new_names(rp, gloss_lower):
     text = ' '.join(body)
     for p in body:
         for w in re.findall(r'(?<=[a-z,;] )([A-Z][a-z]{2,})', p):
-            if w not in NOT_NAMES and w.lower() not in gloss_lower:
+            singular = w[:-1] if w.endswith('s') else w   # Hunters / Kings -> มีใน GLOSSARY แบบเอกพจน์
+            if w not in NOT_NAMES and w.lower() not in gloss_lower and singular.lower() not in gloss_lower:
                 cnt[w] = cnt.get(w, 0) + 1
     # คำที่โผล่เป็นตัวเล็กในตอนเดียวกันด้วย = คำนามทั่วไป (Magic/magic) ไม่ใช่ชื่อ
     return sorted(w for w, c in cnt.items() if c >= 2 and not re.search(r'\b' + w.lower() + r'\b', text))
@@ -113,10 +114,13 @@ def raw_paras(cfg, n):
 
 def body_paras(th, raw):
     """ตัดบรรทัดชื่อตอนออกทั้งสองฝั่งก่อนเทียบย่อหน้า 1:1"""
-    if th and th[0].startswith('ตอนที่'):
+    had_title = bool(th and th[0].startswith('ตอนที่'))
+    if had_title:
         th = th[1:]
     if raw and re.search(r'chap(?:ter)?\s*\d|^第\s*\d+\s*章', raw[0], re.I):
         raw = raw[1:]
+    elif had_title and raw and len(raw[0]) < 80 and not re.search(r'[.!?"”…:;,]\s*$', raw[0]):
+        raw = raw[1:]   # ชื่อตอนเปล่าๆ ไม่มีคำว่า Chapter (เช่น revival-hunter: "The Greatest Envy")
     return th, raw
 
 def first_drift(th, raw):
@@ -234,7 +238,9 @@ def main():
             rp = raw_paras(cfg, n)
             if rp:
                 ratio = sum(map(len, ch['paragraphs'])) / max(1, sum(map(len, rp)))
-                np_th, np_raw = len(re.findall(r'\(', text)), len(re.findall(r'\(', ' '.join(rp)))
+                notes = re.findall(r'\(ผู้แปล:[^()]*(?:\([^()]*\)[^()]*)*\)', text)   # โน้ตผู้แปลที่กฎอนุญาต ไม่นับ
+                np_th = len(re.findall(r'\(', text)) - sum(n.count('(') for n in notes)
+                np_raw = len(re.findall(r'\(', ' '.join(rp)))
                 if np_th > np_raw:
                     issues.append(('WARN', f'วงเล็บมากกว่าต้นฉบับ ({np_th} > {np_raw}) — ห้ามเติมคำอธิบาย/ความเห็นผู้แปลในวงเล็บ'))
                 if re.search(r'[￣︿◕ᴗ✿]', text):
@@ -253,7 +259,9 @@ def main():
                     if nn:
                         issues.append(('WARN', f'ชื่อเฉพาะในต้นฉบับที่ยังไม่อยู่ใน GLOSSARY: {nn[:8]} — เสนอใน Proposed New Terms'))
                 if ratio < MIN_RATIO_BY_LANG.get(cfg['source_lang'], MIN_RATIO):
-                    issues.append(('ERROR', f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/ต้นฉบับ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
+                    # ตอนก่อน strict_from = ฉบับเก่าที่รอแปลใหม่ แจ้งเป็น WARN ไม่บล็อก commit
+                    lvl = 'ERROR' if n >= cfg['strict_from'] else 'WARN'
+                    issues.append((lvl, f'สั้นกว่าต้นฉบับผิดปกติ (ไทย/ต้นฉบับ = {ratio:.2f}, ย่อหน้า {len(ch["paragraphs"])}/{len(rp)}) อาจตกหล่น'))
             if toc.get(n) != ch['title']:
                 issues.append(('WARN', 'สารบัญ index.json ไม่ตรงกับไฟล์ตอน — รัน python sync_books.py'))
             for lvl, msg in issues:

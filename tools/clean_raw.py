@@ -1,7 +1,7 @@
 """ทำความสะอาดต้นฉบับที่ดึงจากเว็บ ก่อนส่งให้ AI แปล (ทำครั้งเดียวต่อไฟล์ ก่อนเริ่มแปล)
 ใช้: python tools/clean_raw.py novels/<เรื่อง>/raw            ดูว่าจะลบอะไร (ไม่แก้ไฟล์)
      python tools/clean_raw.py novels/<เรื่อง>/raw --write    เขียนทับจริง
-ทำ: ย้ายเชิงอรรถผู้แปลอังกฤษ ([1] ..., Footnotes:) ไปช่อง notes, ถอด &nbsp; &amp; ฯลฯ, ลบแท็กโครงหน้าเว็บ (<p> <br> <a>), ลบบรรทัดขยะท้ายหน้า (ฟอร์มล็อกอิน,
+ทำ: ต่อคำที่ถูกแทรกจุด (s.p.a.ce → space), ย้ายเชิงอรรถผู้แปลอังกฤษ ([1] ..., Footnotes:) ไปช่อง notes, ถอด &nbsp; &amp; ฯลฯ, ลบแท็กโครงหน้าเว็บ (<p> <br> <a>), ลบบรรทัดขยะท้ายหน้า (ฟอร์มล็อกอิน,
     ลิงก์กลับเว็บ, โฆษณาตอนถัดไป), ลบย่อหน้าว่าง
 ไม่ทำ: แท็กเน้นคำ (<em> <i> <strong>) เก็บไว้ เพราะบอกได้ว่าเป็นความคิดในใจ/เสียงเน้น
 ห้ามรันกับต้นฉบับ dragon (raw_chapters/) — บทแปลเดิมเทียบย่อหน้า 1:1 กับไฟล์ชุดนั้นอยู่แล้ว
@@ -30,8 +30,22 @@ JUNK_RE = re.compile(r'^(?:' + '|'.join(JUNK) + r')$', re.I)
 LAYOUT_TAGS = re.compile(r'</?(?:p|br|a|span|div|sup|u)(?:\s[^>]*)?/?>', re.I)
 
 
+# เว็บรวมนิยายบางเว็บแทรกจุดกลางคำกันก๊อป: s.p.a.ce, n.o.ble, p.r.o.s.p.e.c.t
+DOTTED = re.compile(r'\b[a-z]+(?:\.[a-z]+)+\b', re.I)
+ABBREV = {'eg', 'ie', 'am', 'pm', 'vs', 'etc'}
+
+
+def undot(m):
+    w = m.group()
+    joined = w.replace('.', '')
+    if w.isupper() or joined.lower() in ABBREV:   # ตัวย่อจริง เช่น U.S.A, e.g., p.m.
+        return w
+    return joined
+
+
 def clean_para(p):
     p = html.unescape(p).replace('\xa0', ' ')
+    p = DOTTED.sub(undot, p)
     p = LAYOUT_TAGS.sub('', p)
     return re.sub(r'\s+', ' ', p).strip()
 

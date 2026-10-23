@@ -36,6 +36,14 @@ class BodyParas(unittest.TestCase):
         th, raw = qa.body_paras(['ตอนที่ 5: ชื่อ', 'ก', 'ข'], ['<strong>Chapter 5: Title</strong>', 'a', 'b'])
         self.assertEqual((th, raw), (['ก', 'ข'], ['a', 'b']))
 
+    def test_bare_title_without_chapter_word(self):
+        th, raw = qa.body_paras(['ตอนที่ 1: ความริษยา', 'ข่าวด่วน!'], ['The Greatest Envy', 'Breaking news!'])
+        self.assertEqual((th, raw), (['ข่าวด่วน!'], ['Breaking news!']))
+
+    def test_short_first_line_kept_when_thai_has_no_title(self):
+        th, raw = qa.body_paras(['ข่าวด่วน!'], ['Breaking news!'])
+        self.assertEqual(raw, ['Breaking news!'])
+
     def test_chap_abbreviation(self):
         _, raw = qa.body_paras([], ['Chap 176 - Title', 'a'])
         self.assertEqual(raw, ['a'])
@@ -216,6 +224,12 @@ class CleanRaw(unittest.TestCase):
     def test_keeps_emphasis_tags(self):
         from tools import clean_raw
         self.assertEqual(clean_raw.clean(['<em>Damn it.</em>'])[0], ['<em>Damn it.</em>'])
+
+    def test_rejoins_dotted_words(self):
+        from tools import clean_raw
+        self.assertEqual(clean_raw.clean_para('the s.p.a.ce around a n.o.ble man, e.g. here, U.S.A, 5 p.m.'),
+                         'the space around a noble man, e.g. here, U.S.A, 5 p.m.')
+        self.assertEqual(clean_raw.clean_para('a ma.s.sage, her but.tocks, relations.h.i.p'), 'a massage, her buttocks, relationship')
 
     def test_moves_footnotes_to_notes(self):
         from tools import clean_raw
