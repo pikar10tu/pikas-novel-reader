@@ -40,6 +40,8 @@ def undot(m):
     joined = w.replace('.', '')
     if w.isupper() or joined.lower() in ABBREV:   # ตัวย่อจริง เช่น U.S.A, e.g., p.m.
         return w
+    if any(s[:1].isupper() for s in w.split('.')[1:]):   # จบประโยคแล้วลืมเว้นวรรค: crazy.With, Mr.Psychopath
+        return w
     return joined
 
 
