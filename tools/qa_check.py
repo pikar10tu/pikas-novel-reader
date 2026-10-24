@@ -70,6 +70,7 @@ CFG_DEFAULTS = {
     'father': [],                # [[ชื่อลูก, คำต้องห้าม, คำที่ถูก], ...]
     'father_ok': [],             # [[ตอน, ย่อหน้า 1-based], ...] ที่ตรวจด้วยตาแล้วว่าถูก
     'dup_ok': [],                # ตอนที่ย่อหน้าซ้ำเป็นก้อนโดยเจตนาของผู้แต่ง
+    'dialogue_ok': [],           # ตอนที่บทพูด/บรรยายไม่ตรงต้นฉบับโดยเจตนา (ความคิด/จดหมาย) ตรวจด้วยตาแล้ว
 }
 
 def load_cfg(ndir):
@@ -129,6 +130,24 @@ def first_drift(th, raw):
         if len(e) > 60 and not 0.4 < len(t) / len(e) < 2.0:
             return i + 1
     return None
+
+def _plain(s):
+    return re.sub(r'<[^>]+>', '', s)
+
+def truncated_paras(th, raw, min_len=80, ratio=0.5):
+    """ย่อหน้าที่ไทยสั้นไม่ถึงครึ่งของต้นฉบับคู่กัน = แปลแค่ครึ่งประโยคแรกแล้วทิ้งที่เหลือ
+    (Ch 345-352 เคยเจอ 21 ย่อหน้า — จำนวนย่อหน้าตรง 1:1 แต่เนื้อหาหายไปครึ่ง)"""
+    return [i + 1 for i, (t, e) in enumerate(zip(th, raw))
+            if len(_plain(e)) > min_len and len(t) / len(_plain(e)) < ratio]
+
+def _is_dialogue(s):
+    return bool(re.match(r'^\s*(<[^>]+>)*\s*["“]', s))
+
+def dialogue_mismatch(th, raw):
+    """ย่อหน้าที่ต้นฉบับเป็นบทพูดแต่ไทยเป็นบทบรรยาย (หรือกลับกัน)
+    ถ้าเจอหลายจุดติดกัน = ช่วงนั้นไม่ได้แปลจากต้นฉบับ (Ch 354 เคยแต่งฉากใหม่ 39 ย่อหน้าโดยจำนวนย่อหน้ายังตรง)
+    ความคิดในใจที่ไทยใส่ ' ไม่นับ เพราะต้นฉบับมักไม่มีเครื่องหมาย"""
+    return [i + 1 for i, (t, e) in enumerate(zip(th, raw)) if _is_dialogue(t) != _is_dialogue(e)]
 
 def modern_density(paras):
     """'ฉัน' + 'นาย' (สรรพนาม ไม่นับ เจ้านาย/นายพล ฯลฯ) ในบทพูด/ความคิด ต่อหมื่นตัวอักษร"""
@@ -254,6 +273,16 @@ def main():
                                        + (f' เริ่มเพี้ยนราวย่อหน้าที่ {hint}' if hint else '') + ' — ตกหล่น ซ้ำ หรือแต่งเพิ่ม'))
                 elif diff < -5:   # ย่อหน้าน้อยกว่าต้นฉบับมาก = อาจตกหล่น (มากกว่าไม่เป็นไร ตอนต้นๆ แตกย่อหน้าเยอะ)
                     issues.append(('WARN', f'จำนวนย่อหน้าต่างจากต้นฉบับ {diff:+d} ({len(ch["paragraphs"])}/{len(rp)}) — เช็กว่าตกหล่นหรือซ้ำ'))
+                if n >= cfg['strict_from'] and cfg['source_lang'] in ('en', 'ko', 'ja'):
+                    th_b, raw_b = body_paras(ch['paragraphs'], rp)
+                    if len(th_b) == len(raw_b):
+                        tr = truncated_paras(th_b, raw_b)
+                        if tr:
+                            issues.append(('ERROR' if len(tr) >= 3 else 'WARN',
+                                           f'ย่อหน้าที่แปลไม่ครบ (สั้นกว่าครึ่งของต้นฉบับ) {len(tr)} จุด: {tr[:8]} — แปลให้ครบทั้งย่อหน้า'))
+                        dm = dialogue_mismatch(th_b, raw_b)
+                        if len(dm) >= 4 and n not in cfg['dialogue_ok']:
+                            issues.append(('ERROR', f'บทพูด/บทบรรยายไม่ตรงต้นฉบับ {len(dm)} จุด: {dm[:10]} — ช่วงนี้อาจไม่ได้แปลจากต้นฉบับ (แต่งเอง/ข้ามแล้วเติม) เทียบทีละย่อหน้า'))
                 if cfg['source_lang'] == 'en' and n >= cfg['names_from'] and gloss_lower:
                     nn = new_names(rp, gloss_lower)
                     if nn:

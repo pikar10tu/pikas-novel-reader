@@ -252,3 +252,20 @@ class CleanRaw(unittest.TestCase):
         from tools import clean_raw
         line = 'Back to my Hell. My 125 square-foot, single room apartment.'
         self.assertEqual(clean_raw.clean([line, 'Back to the time the Flame Emperor could still die!'])[1], [])
+
+
+class ContentChecks(unittest.TestCase):
+    def test_truncated_paragraph(self):
+        e = 'x' * 200
+        self.assertEqual(qa.truncated_paras(['ก' * 60, 'ก' * 190], [e, e]), [1])
+
+    def test_short_source_not_flagged(self):
+        self.assertEqual(qa.truncated_paras(['ก'], ['Short line.']), [])
+
+    def test_dialogue_mismatch(self):
+        th = ['"พูด"', 'บรรยาย', 'บรรยาย']
+        raw = ['"Said."', '"Another line."', 'Narration.']
+        self.assertEqual(qa.dialogue_mismatch(th, raw), [2])
+
+    def test_thought_quotes_ignored(self):
+        self.assertEqual(qa.dialogue_mismatch(["'คิดในใจ'"], ['Thinking to himself.']), [])
