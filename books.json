@@ -36,24 +36,6 @@
     "dir": "novels/revival-hunter/"
   },
   {
-    "id": "dual-cultivation",
-    "title": "บำเพ็ญคู่หยินหยาง",
-    "originalTitle": "Dual Cultivation",
-    "cover": "covers/dual_cultivation_cover.webp",
-    "tags": [
-      "กำลังภายใน",
-      "ฮาเร็ม",
-      "บำเพ็ญคู่",
-      "โรแมนติกแฟนตาซี"
-    ],
-    "synopsis": "ซูหยาง อดีตมหาเทพผู้เชี่ยวชาญศาสตร์แห่งการบำเพ็ญคู่ที่เกรียงไกรที่สุดในสี่สวรรค์เทวะ ได้กลับมาจุติใหม่ในร่างของศิษย์หนุ่มสายนอกแห่งสำนักบุปผายินดีที่กำลังตกต่ำ ด้วยรูปโฉมอันหล่อเหลาไร้ผู้เทียบและวิถีหยินหยางอันลึกล้ำ เขาจะนำพาสำนักและเหล่าสตรีผู้เลอโฉมก้าวสู่จุดสูงสุดแห่งยุทธภพ!",
-    "author": "MyLittleBrother",
-    "status": "กำลังแปล",
-    "chapterCount": 45,
-    "indexPath": "novels/dual-cultivation/index.json",
-    "dir": "novels/dual-cultivation/"
-  },
-  {
     "id": "cannon-fodder-phoenix",
     "title": "เมื่อตัวประกอบปั้นน้องสาวให้เป็นหงส์เหินเก้าชั้นฟ้า",
     "originalTitle": "The Cannon Fodder Turns His Sister Into A Soaring Phoenix",
